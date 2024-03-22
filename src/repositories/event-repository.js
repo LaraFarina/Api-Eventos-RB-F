@@ -1,5 +1,5 @@
 import pg from "pg";
-import { DBConfig } from "./db.js";
+import { DBConfig } from "./db.js.js";
 
 const client = new pg.Client(DBConfig);
 client.connect();
