@@ -174,4 +174,46 @@ router.post('/:id/enrollments', async (req, res) => {
     res.status(201).json(enrollmentResult[0]);
 });
 
+//8. Crud de eventos
+router.post("/event", async (req, res) => {
+    const { name, description, start_date, location, id_creator_user } = req.body;
+    try {
+      const newEvent = await pool.query(
+        "INSERT INTO events (name, description, start_date, location, id_creator_user) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [name, description, start_date, location, id_creator_user]
+      );
+      res.json(newEvent.rows[0]);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Error de servidor");
+    }
+  });
+  
+  router.put("/event/:id", async (req, res) => {
+    const { id } = req.params;
+    const { name, description, start_date, location } = req.body;
+    try {
+      const updatedEvent = await pool.query(
+        "UPDATE events SET title = $1, description = $2, start_date = $3, location = $4 WHERE id = $5 RETURNING *",
+        [name, description, start_date, location, id]
+      );
+      res.json(updatedEvent.rows[0]);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Error de servidor");
+    }
+  });
+  
+  router.delete("/event/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+      await pool.query("DELETE FROM events WHERE id = $1", [id]);
+      res.json("Evento eliminado");
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Error de servidor");
+    }
+  });
+  
+
 export default router;
