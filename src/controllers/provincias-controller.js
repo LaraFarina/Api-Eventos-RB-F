@@ -1,65 +1,71 @@
-import express from "express";
+import express, {Request, Response} from "express";
+const express = require('express');
 const router = express.Router();
-import { Pool } from 'pg';
-// Acá iría la conexión a la base de datos
-const pool = new Pool({
 
+
+// Obtener una provincia por ID
+router.get('/Provincias/:id', async (req, res) => {
+  try {
+    const provincia = await Provincia.findByPk(req.params.id);
+    res.json(provincia);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-//7. Crud de provincias
-router.get("/provincias", async (req, res) => {
-    try {
-      const { page, limit } = req.query;
-      const offset = (page - 1) * limit;
-      const provinces = await pool.query(
-        "SELECT * FROM provinces LIMIT $1 OFFSET $2",
-        [limit, offset]
-      );
-      res.json(provinces.rows);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Error de servidor");
-    }
-  });
+// Obtener todas las provincias con paginación
+router.get('/Provincias', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
 
-  router.post("/provincias", async (req, res) => {
-    const { name, full_name, latitude, longitude, display_order } = req.body;
-    try {
-      const newProvince = await pool.query(
-        "INSERT INTO provinces (name, full_name, latitude, longitude, display_order) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [name, full_name, latitude, longitude, display_order]
-      );
-      res.json(newProvince.rows[0]);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Error de servidor");
-    }
-  });
-  
-  router.put("/provincias/:id", async (req, res) => {
-    const { id } = req.params;
-    const { name, full_name, latitude, longitude, display_order } = req.body;
-    try {
-      const updatedProvince = await pool.query(
-        "UPDATE provinces SET name = $1, full_name = $2, latitude = $3, longitude = $4, display_order = $5 WHERE id = $6 RETURNING *",
-        [name, full_name, latitude, longitude, display_order, id]
-      );
-      res.json(updatedProvince.rows[0]);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Error de servidor");
-    }
-  });
-  
-  router.delete("/provincias/:id", async (req, res) => {
-    const { id } = req.params;
-    try {
-      await pool.query("DELETE FROM provinces WHERE id = $1", [id]);
-      res.json("Provincia eliminada");
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Error de servidor");
-    }
-  });
-  
-  export default router;
+  try {
+    const provincias = await Provincia.findAndCountAll({
+      limit: limit,
+      offset: offset,
+    });
+    res.json({
+      total: provincias.count,
+      results: provincias.rows,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Crear una nueva provincia
+router.post('/Provincias', async (req, res) => {
+  try {
+    const provincia = await Provincia.create(req.body);
+    res.status(201).json(provincia);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Actualizar una provincia por ID
+router.put('/Provincias/:id', async (req, res) => {
+  try {
+    const provincia = await Provincia.update(req.body, {
+      where: { id: req.params.id },
+      returning: true,
+    });
+    res.json(provincia[1][0]);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Eliminar una provincia por ID
+router.delete('/Provincias/:id', async (req, res) => {
+  try {
+    await Provincia.destroy({
+      where: { id: req.params.id },
+    });
+    res.json({ message: 'Provincia eliminada' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;

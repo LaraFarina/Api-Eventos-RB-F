@@ -1,51 +1,100 @@
+import { query } from "express";
 import {EventRepository} from "../repositories/event-respository.js";
 
 export class EventService {
   getAllEvents(name, category, startDate, tag, pageSize, requestedPage) {
-    const eventRepository = new EventRepository(); 
-    //aqui inicia la segunda parte de la travesia, donde se ingresan los datos y se obtiene la respuesta
-    const [events, allevents] = eventRepository.getAllEvents(name, category, startDate, tag, pageSize, requestedPage); 
-    var queryPrimero = "SELECT * FROM events";
     if(name){
-      queryPrimero += ` WHERE name = ${name}`;
+      queryAgregado += ` WHERE name = ${name}`;
     }
     if(category){
-      queryPrimero += `INNER JOIN event_categories ON event.id_event_category = event_categories.id`;
-      if(queryPrimero.includes("WHERE")){
-        queryPrimero += ` AND event_categories.name = ${category}`;
+      if(queryAgregado.includes("WHERE")){
+        queryAgregado += ` AND event_categories.name = ${category}`;
       } else {
-        queryPrimero += ` WHERE event_categories.name = ${category}`;
+        queryAgregado += ` WHERE event_categories.name = ${category}`;
       }
     }
     if(startDate){
-      if(queryPrimero.includes("WHERE")){
-        queryPrimero += ` AND startDate = ${startDate}`;
+      if(queryAgregado.includes("WHERE")){
+        queryAgregado += ` AND startDate = ${startDate}`;
       } else {
-        queryPrimero += ` WHERE startDate = ${startDate}`;
+        queryAgregado += ` WHERE startDate = ${startDate}`;
       }
     }    
     if(tag){
-      queryPrimero += `INNER JOIN event_tags ON event.id_event_tag = event_tags.id`;
-      if(queryPrimero.includes("WHERE")){
-        queryPrimero += ` AND event_tags.name = ${tag}`;
+      if(queryAgregado.includes("WHERE")){
+        queryAgregado += ` AND event_tags.name = ${tag}`;
       } else {
-        queryPrimero += ` WHERE event_tags.name = ${tag}`;
+        queryAgregado += ` WHERE event_tags.name = ${tag}`;
       }
     }
-    
+    const eventRepository = new EventRepository(); 
+    const resultadoGet = eventRepository.getAllEvents(name, category, startDate, tag, pageSize, requestedPage); 
     return {
-      collection: "query",
-      pagination: {
-        limit: pageSize,
-        offset: requestedPage,
-        nextPage: "http://localhost:7777/event?limit=15&offset=1",
-        total: "query2",
-        name: name,
-        category: category,
-        startDate: startDate,
-        tag: tag,
-      },
+      query: queryAgregado,
+      pageSize: pageSize,
+      requestedPage: requestedPage, 
+      nextPag
     }; //faltaria modificar el return para que muestre los parametros
   }
-}
+  getEventByFilters(name, category, startDate, tag, limit, offset) {
+    if (!name && !category && !startDate && !tag) {
+        throw new Error('Se necesita al menos un filtro para buscar eventos');
+    }
+    var queryAgregado;
+    //tiene el 1=1 para que no haya dificultades con los and's que se le agregan (asi tenemos menos if's y es mas facil de leer)
+    if(name){
+        queryAgregado += ` AND name = '${name}'`;
+    }
+    if(category){
+      queryAgregado += ` AND category = '${category}'`;
+    }
+    if(startDate){
+      queryAgregado += ` AND startDate = '${startDate}'`;
+    }
+    if(tag){
+      queryAgregado += ` AND tag = '${tag}'`;
+    }
 
+    const eventRepository = new EventRepository();
+    const resultadoGet = eventRepository.getEventByFilters(name, category, startDate, tag, pageSize, requestedPage, limit, offset); 
+    return {
+      query: queryAgregado,
+      pageSize: pageSize,
+      requestedPage: requestedPage, 
+      nextPage: requestedPage + 1,
+    };
+}
+  getEventByID(id) {
+    const eventRepository = new EventRepository();
+    const resultadoGet = eventRepository.getEventByID(id);
+    return resultadoGet;
+  }
+  getParticipantesEvento(id, first_name, last_name, userName, attended){
+    if(attended || !attended) {
+        return false;
+    }
+    var queryPrimero;
+    if(first_name){
+      queryPrimero += ` AND users.first_name = ${first_name}`;
+    }    
+    if(last_name){
+      queryPrimero += ` AND users.last_name = ${last_name}`;
+    }
+    if(userName){
+      queryPrimero += ` AND users.username = ${userName}`;
+    }
+    if(attended){
+      queryPrimero += ` AND event_enrollments.attended = ${attended}`;
+    }    
+    const eventRepository = new EventRepository();
+    const resultadoGet = eventRepository.getParticipantsEvent(id, queryPrimero);
+    return resultadoGet;
+  }
+  postInscripcionEvento(id, id_user){
+    const eventRepository = new EventRepository();
+    const resultadoPost = eventRepository.postInscripcionEvento(id, id_user);
+    return resultadoPost;
+  }
+
+
+}

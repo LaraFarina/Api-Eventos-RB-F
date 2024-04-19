@@ -4,9 +4,6 @@ import { EventService } from "../service/event-service.js";
 const router = express.Router();
 const eventService = new EventService();
 
-//Busqueda de un Evento
-
-
 //PUNTO 2: LISTADO 
 router.get("/", (req, res) => {
     const pageSize = req.query.pageSize;
@@ -21,36 +18,44 @@ router.get("/", (req, res) => {
         return res.json(allEvents);
     }catch(error){ 
         console.log("Error al buscar");
-        return res.json("Error");
+        return res.json("Un Error");
     }    
 });
 
-//PUNTO 3: BUSQUEDA DE EVENTO
-// Busqueda de un evento
-router.get("/event}", (req,res) => {
+// PUNTO 3: BUSQUEDA DE UN EVENTO
+router.get("/", (req,res) => {
     const pageSize = req.query.pageSize;
     const page = req.query.page;
     const offset = (page - 1) * pageSize;
     const limit = pageSize;
-    var sqlQuery = `SELECT * FROM events LIMIT ${limit} OFFSET ${offset} WHERE id = ${req.params.id}`;
+    // var sqlQuery = `SELECT * FROM events LIMIT ${limit} OFFSET ${offset} WHERE id = ${req.params.id}`; ACA HAY QUE LLAMAR A LA FUNCION getEventByFilters() de event-service.js
+    try{
+        const event = eventService.getEventByFilters(req.query.name, req.query.category, req.query.startDate, req.query.tag, limit, offset);
+        return res.json(event);
+    } catch(error){
+        console.log("Error al buscar");
+        return res.json("Un Error");
+    }
 });
 
 
-// Listado participantes
-// router.get("/event/{id}", (req,res) => {
-//     const pageSize = req.query.pageSize;
-//     const page = req.query.page;
-//     const offset = (page - 1) * pageSize;
-//     const limit = pageSize;
-//     var sqlQuery = `SELECT * FROM events LIMIT ${limit} OFFSET ${offset} WHERE id = ${req.params.id}`;
-    
+//PUNTO 4: DETALLE DE UN EVENTO
+router.get("/:id", (req, res) => {
+    try {
+        const evento = eventService.getEventById(req.params.id);
+        return res.json(evento);
+    }
+    catch(error){
+        console.log("No hay evento existente");
+        return res.json("Ha ocurrido un error");
+    }
+});
 
-
-
-// });
 router.get("/:id", (req, res) => {
     const pageSize = req.query.pageSize;
     const page = req.query.page;
+    // const pageSize = 10;
+    // const page = 2;
     const offset = (page - 1) * pageSize;
     const limit = pageSize;
     const eventId = req.params.id;
@@ -69,82 +74,42 @@ router.get("/:id", (req, res) => {
 
 
 // PUNTO 5: LISTADO DE PARTICIPANTES DE UN EVENTO.
-router.get("/{id}/enrollment", (req, res) => {
-    const pageSize = req.query.pageSize;
-    const page = req.query.page;
-    const { first_name, last_name, username, attended } = req.query;
 
-
-    res.send(filteredParticipants);
+router.get("/:id/enrollment", (req, res) => {
+    const first_name = req.query.first_name;
+    const last_name = req.query.last_name;
+    const userName = req.query.userName;
+    const attended = req.query.attended;
+    try {
+        const participantesEvento = eventService.getParticipantesEvento(req.params.id, first_name, last_name, userName, attended);
+        if(!participantesEvento){
+            return res.status(400).json({ error: 'El formato de attended no es valido' });
+        }
+        return res.json(participantesEvento);
+    }
+    catch(error){
+        console.log("Error al buscar");
+        return res.json("Un Error");
+    }
 });
 
+// PUNTO 9: INSCRIPCION DE UN PARTICIPANTE A UN EVENTO
 
-router.post("/{id}/enrollment", (req,res) => {
-    const body = req.body;
-    console.log(body);
-
-
-    // aca van los eventos que se crean, se cargarian a la BD
-
+router.post("/:id/enrollment", (req, res) => {
+    const id_user = req.body;
+    const id_event = req.params.id;
+    try {
+        const event = eventService.postInscripcionEvento(req.params.id, req.body.id_user);
+        if(!event){
+            return res.status(400).json({ error: 'El formato de attended no es valido' });
+        } // ACA FALTA PONER SI NO SE PUEDE INSCRIBIR Y SI SE PUDO INSCRIBIR
+        return res.json(event);
+    }
+    catch(error){
+        console.log("Error al inscribir");
+        return res.json("Un Error");
+    }
 });
-
-// PUNTO 8: Creación, Edición, Eliminación de Eventos (CRUD)
-
-router.get("/event", async (req, res) => {
-  try {
-    const { page, limit } = req.query;
-    const offset = (page - 1) * limit;
-    const provinces = await pool.query(
-      "SELECT * FROM events LIMIT $1 OFFSET $2",
-      [limit, offset]
-    );
-    res.json(provinces.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error de servidor");
-  }
-});
-
-
-router.post("/event", async (req, res) => {
-  const { name, full_name, latitude, longitude, display_order } = req.body;
-  try {
-    const newProvince = await pool.query(
-      "INSERT INTO events (name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10) RETURNING *",
-      [name, full_name, latitude, longitude, display_order]
-    );
-    res.json(newProvince.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error de servidor");
-  }
-});
-
-router.put("/event/:id", async (req, res) => {
-  const { id } = req.params;
-  const { name, full_name, latitude, longitude, display_order } = req.body;
-  try {
-    const updatedProvince = await pool.query(
-      "UPDATE events SET name = $1, description = $2, latitude = $3, longitude = $4, display_order = $5 WHERE id = $6 RETURNING *",
-      [name, full_name, latitude, longitude, display_order, id]
-    );
-    res.json(updatedProvince.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error de servidor");
-  }
-});
-
-router.delete("/event/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query("DELETE FROM events WHERE id = $1", [id]);
-    res.json("Evento eliminado");
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error de servidor");
-  }
-});
-
+    
 export default router;
 
