@@ -6,7 +6,7 @@ client.connect();
 
 class UserRepository {
     verificacionUsuario(username,password){
-        var sqlQuery = `SELECT * FROM users WHERE username = ${username} AND password = ${password}`;
+        var sqlQuery = `SELECT * FROM users WHERE username = ${username} AND password = ${password}`; // Creación de una sql query para obtener toda la info de donde el usuario es coincidente y la contraseña es coincidente. 
         const values = client.query(sqlQuery);
         return values.rows;
     } 

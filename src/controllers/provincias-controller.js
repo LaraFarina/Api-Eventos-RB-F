@@ -2,9 +2,11 @@ import express, {Request, Response} from "express";
 const express = require('express');
 const router = express.Router();
 
+// 7. Creación, Edición, Eliminación y Listado de Provincias (CRUD)
 
-// Obtener una provincia por ID
-router.get('/Provincias/:id', async (req, res) => {
+//  obtener por id de provincias.
+
+  router.get('/Provincias/:id', async (req, res) => {
   try {
     const provincia = await Provincia.findByPk(req.params.id);
     res.json(provincia);
@@ -13,8 +15,9 @@ router.get('/Provincias/:id', async (req, res) => {
   }
 });
 
-// Obtener todas las provincias con paginación
-router.get('/Provincias', async (req, res) => {
+// obtener todos(paginado)
+
+  router.get('/Provincias', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
@@ -33,8 +36,8 @@ router.get('/Provincias', async (req, res) => {
   }
 });
 
-// Crear una nueva provincia
-router.post('/Provincias', async (req, res) => {
+// Creación de provincia
+  router.post('/Provincias', async (req, res) => {
   try {
     const provincia = await Provincia.create(req.body);
     res.status(201).json(provincia);
@@ -43,8 +46,8 @@ router.post('/Provincias', async (req, res) => {
   }
 });
 
-// Actualizar una provincia por ID
-router.put('/Provincias/:id', async (req, res) => {
+// Actualizar provincia por id
+  router.put('/Provincias/:id', async (req, res) => {
   try {
     const provincia = await Provincia.update(req.body, {
       where: { id: req.params.id },
@@ -56,8 +59,9 @@ router.put('/Provincias/:id', async (req, res) => {
   }
 });
 
-// Eliminar una provincia por ID
-router.delete('/Provincias/:id', async (req, res) => {
+// Eliminar provincia por id
+
+  router.delete('/Provincias/:id', async (req, res) => {
   try {
     await Provincia.destroy({
       where: { id: req.params.id },

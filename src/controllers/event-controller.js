@@ -4,8 +4,9 @@ import { EventService } from "../service/event-service.js";
 const router = express.Router();
 const eventService = new EventService();
 
-//PUNTO 2: LISTADO 
-router.get("/", (req, res) => {
+// 2. Listado de Eventos
+
+    router.get("/", (req, res) => {
     const pageSize = req.query.pageSize;
     const page = req.query.page;
     const tag = req.query.tag;
@@ -22,8 +23,9 @@ router.get("/", (req, res) => {
     }    
 });
 
-// PUNTO 3: BUSQUEDA DE UN EVENTO
-router.get("/", (req,res) => {
+//3. Busqueda de un Evento
+
+    router.get("/", (req,res) => {
     const pageSize = req.query.pageSize;
     const page = req.query.page;
     const offset = (page - 1) * pageSize;
@@ -39,8 +41,9 @@ router.get("/", (req,res) => {
 });
 
 
-//PUNTO 4: DETALLE DE UN EVENTO
-router.get("/:id", (req, res) => {
+//4. Detalle de un Evento
+
+    router.get("/:id", (req, res) => {
     try {
         const evento = eventService.getEventById(req.params.id);
         return res.json(evento);
@@ -54,13 +57,12 @@ router.get("/:id", (req, res) => {
 router.get("/:id", (req, res) => {
     const pageSize = req.query.pageSize;
     const page = req.query.page;
-    // const pageSize = 10;
-    // const page = 2;
     const offset = (page - 1) * pageSize;
     const limit = pageSize;
     const eventId = req.params.id;
 
-    // Consulta SQL para obtener el detalle del evento y su localización completa
+    // Esto lo que hace es una consulta en la query SQL para poder obtener el detalle del evento y su lugar de localización event_locations)
+   
     const sqlQuery = ` SELECT e.*, l.*, p.* 
     FROM events e 
     JOIN event_locations el ON el.id = e.id_event_location
@@ -69,11 +71,10 @@ router.get("/:id", (req, res) => {
     LIMIT 1 OFFSET 1`;
     
     res.json(sqlQuery);
-    //falta agregar el que te haga la query
 });
 
 
-// PUNTO 5: LISTADO DE PARTICIPANTES DE UN EVENTO.
+// 5. Listado de Participantes
 
 router.get("/:id/enrollment", (req, res) => {
     const first_name = req.query.first_name;
@@ -93,7 +94,7 @@ router.get("/:id/enrollment", (req, res) => {
     }
 });
 
-// PUNTO 9: INSCRIPCION DE UN PARTICIPANTE A UN EVENTO
+// 9. Inscripcion a un Evento
 
 router.post("/:id/enrollment", (req, res) => {
     const id_user = req.body;
@@ -102,7 +103,7 @@ router.post("/:id/enrollment", (req, res) => {
         const event = eventService.postInscripcionEvento(req.params.id, req.body.id_user);
         if(!event){
             return res.status(400).json({ error: 'El formato de attended no es valido' });
-        } // ACA FALTA PONER SI NO SE PUEDE INSCRIBIR Y SI SE PUDO INSCRIBIR
+        } 
         return res.json(event);
     }
     catch(error){
