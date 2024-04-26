@@ -19,7 +19,7 @@ const eventService = new EventService();
         return res.json(allEvents);
     }catch(error){ 
         console.log("Error al buscar");
-        return res.json("Un Error");
+        return res.json("Error");
     }    
 });
 
@@ -36,7 +36,7 @@ const eventService = new EventService();
         return res.json(event);
     } catch(error){
         console.log("Error al buscar");
-        return res.json("Un Error");
+        return res.json("Error");
     }
 });
 
@@ -90,7 +90,7 @@ router.get("/:id/enrollment", (req, res) => {
     }
     catch(error){
         console.log("Error al buscar");
-        return res.json("Un Error");
+        return res.json("Error");
     }
 });
 
@@ -108,7 +108,7 @@ router.post("/:id/enrollment", (req, res) => {
     }
     catch(error){
         console.log("Error al inscribir");
-        return res.json("Un Error");
+        return res.json("Error");
     }
 });
     
