@@ -4,9 +4,9 @@ import {config} from "./db.js"
 const client = new pg.Client(config);
 client.connect();
 
-class UserRepository {
+export class UserRepository {
     verificacionUsuario(username,password){
-        var sqlQuery = `SELECT * FROM users WHERE username = ${username} AND password = ${password}`; // Creación de una sql query para obtener toda la info de donde el usuario es coincidente y la contraseña es coincidente. 
+        var sqlQuery = `SELECT * FROM users WHERE username = ${username} AND password = ${password}`;
         const values = client.query(sqlQuery);
         return values.rows;
     } 
@@ -16,5 +16,7 @@ class UserRepository {
         return values.rows;
     }
 }
+
+
 
 

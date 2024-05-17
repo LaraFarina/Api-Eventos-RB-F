@@ -1,5 +1,7 @@
 import { query } from "express";
-import {UserRepository} from "../repositories/event-respository.js";
+import {UserRepository} from "../repositories/user-repository.js";
+
+
 
 export class UserService {
     verificacionUsuario(username, password){
@@ -12,3 +14,4 @@ export class UserService {
     }
 
 }
+
