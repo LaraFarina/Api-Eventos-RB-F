@@ -9,7 +9,7 @@ export const createToken = (user) => {
     const secretKey = "ClaveSecreta";
 
     const options = {
-        expiresIn : '1h',
+        expiresIn : '2h',
         issuer : 'localhost'
     };
 
