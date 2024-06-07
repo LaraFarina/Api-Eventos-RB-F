@@ -5,12 +5,13 @@ import { config } from "../repositories/db.js";
 import { Pagination } from "../utils/paginacion.js";
 const sql = "SELECT * FROM provinces";
 const pagination = new Pagination();
-
+const client = new pg.Client(config);
+client.connect();
 export class ProvinciasService {
-    constructor(){
-        this.client = new pg.Client(config);
-        this.client.connect();
-    }
+    // constructor(){
+    //     this.client = new pg.Client(config);
+    //     this.client.connect();
+    // }
 
     async findProvByID (id) {
         let returnEntity = null;
@@ -104,6 +105,25 @@ export class ProvinciasService {
             throw new Error('Not Found');
         }
         return updatedProvince;
+    }
+
+    async findLocationsByProvince(id){
+        let returnEntity = null;
+        console.log("Estoy en: findLocationsByProvince");
+        try {
+          const query = {
+            text: 'SELECT * FROM locations WHERE id_province = $1',
+            values: [id]
+          };
+          const result = await client.query(query);
+          console.log(result);
+          returnEntity = result.rows;
+          console.log(result);
+        } catch (error) {
+          console.log(error);
+        }
+        return returnEntity;
+
     }
 
 }

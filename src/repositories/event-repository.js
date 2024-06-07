@@ -3,53 +3,59 @@ import { config } from "./db.js";
 // import { generarLimitOffset } from "../utils/paginaion.js";
 
 const client = new pg.Client(config);
-console.log('config', config)
+// console.log('config', config)
 client.connect();
-console.log('config 2', config)
+console.log('config', config)
 
 const sql = "SELECT * FROM events";
 const respuesta = await client.query(sql);
 
 //tercera parte de la travesia, aquí se ingresa la query y se obtiene la respuesta en rows
 export class EventRepository{
-    async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
-        let sqlQuery = "SELECT * FROM events WHERE 1=1";
-        
-        if (name) {
-            sqlQuery += ` AND "name" ILIKE '%${name}%'`; // Utilizamos ILIKE para una búsqueda insensible a mayúsculas y minúsculas
-        }
-        if (category) { //CHEQUEAR
-            const categoryIdQuery = `SELECT id FROM event_categories WHERE "name" = '${category}'`;
-            const { rows: categoryRows } = await client.query(categoryIdQuery);
-            const categoryId = categoryRows[0]?.id;
-            if (categoryId) {
-                sqlQuery += ` AND id_event_category = '${categoryId}'`;
+      async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+        console.log("Tag: ", tag)
+        console.log("Category:", category)
+        console.log("Name: ", name)
+        console.log("startDate: ", startDate)
+
+
+           let sqlQuery = "SELECT * FROM events WHERE 1=1";
+           
+           if (name) {
+               sqlQuery += ` AND "name" LIKE '%${name}%'`;
             }
-        }
-        if (startDate) {
-            sqlQuery += ` AND start_date::date = '${startDate}'::date`;
-        }        
-        if (tag) { //CHEQUEAR
+           if (category) {
+               const categoryIdQuery = `SELECT id FROM event_categories WHERE "name" = '${category}'`;
+               const { rows: categoryRows } = await client.query(categoryIdQuery);
+               const categoryId = categoryRows[0]?.id;
+               console.log(categoryId);
+               if (categoryId) {
+                    console.log("SOY UNA CATEGORIA Y EXISTO")
+                   sqlQuery += ` AND id_event_category = '${categoryId}'`;
+               }
+           }
+          if (startDate) {
+               sqlQuery += ` AND start_date::date = '${startDate}'::date`;
+           }
+           if (tag) {
             const tagIdQuery = `SELECT id FROM tags WHERE "name" = '${tag}'`;
-            const { rows: tagRows } = await client.query(tagIdQuery);
-            const tagId = tagRows[0]?.id;
-            if (tagId) {
-                // Luego, necesitamos verificar la tabla de relaciones event_tags para obtener eventos asociados con este tag
-                sqlQuery += ` AND id IN (SELECT id_event FROM event_tags WHERE id_tag = '${tagId}+')`;
+               const { rows: tagRows } = await client.query(tagIdQuery);
+               const tagId = tagRows[0]?.id;
+              if (tagId) {
+                    sqlQuery += ` AND id IN (SELECT id_event FROM event_tags WHERE id_tag = '${tagId}')`;
+                }
             }
-        }
-        
-        // Agregar paginación utilizando la función
-        sqlQuery += " " + generarLimitOffset(pageSize, page);
     
-        try {
-            const { rows } = await client.query(sqlQuery);
-            return rows;
-        } catch (error) {
-            console.error("Error al ejecutar la consulta SQL:", error);
-            throw new Error('Error al obtener eventos por filtros');
-        }
+            // Agregar paginación utilizando limit y offset
+            sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+    try {
+    const { rows } = await client.query(sqlQuery);
+    return rows;
+    } catch (error) {
+    console.error("Error al ejecutar la consulta SQL:", error);
+    throw new Error('Error al obtener eventos por filtros');
     }
+ }
     
     
     

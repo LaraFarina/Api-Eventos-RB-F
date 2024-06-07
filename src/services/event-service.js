@@ -9,16 +9,16 @@ client.connect();
 
 export class EventService {
 
-async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
-  try {
-      const eventRepository = new EventRepository();
-      const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, pageSize, page);
-      // console.log("Estoy en: getEventsByFilters DE event-service", events);
-      return events;
-  } catch (error) {
-      throw new Error('Error al obtener eventos por filtros');
-  }
-}
+    async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+        try {
+            const eventRepository = new EventRepository();
+            const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
+            return events;
+        } catch (error) {
+            console.error("Error en getEventsByFilters de EventService:", error);
+            throw new Error('Error al obtener eventos por filtros');
+        }
+    }
 
   async getEventById (id) {
     let returnEntity = null;
@@ -68,6 +68,23 @@ async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
     const resultadoPost = eventRepository.postInscripcionEvento(id, id_user);
     return resultadoPost;
   }
+
+  async deleteInscripcionEvento(id_event, id_user){
+    let deleteInscipt;
+    const query ={
+      text: 'DELETE FROM event_enrollments WHERE id_event = $1 AND id_user = $2 RETURNING *',
+      values: [id_event, id_user],
+    };
+    try {
+      const result = await client.query(query);
+      deleteInscipt = result.rows[0];
+      console.log('Inscripcion eliminada:', deleteInscipt);
+    } catch (error) {
+      console.error('Error al eliminar inscripcion:', error);
+    }
+    return deleteInscipt;
+  }
+
   async patchEnrollment(rating, description, attended, observation, id_event, id_user){
     const enrollment={
       id_event: id_event,
@@ -84,10 +101,17 @@ async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
 
   async createEvent(name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user){
     let createEvent = null;
+    const maxCapacity1 = 84567;
+    
     const query = {
         text: 'INSERT INTO events (name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
         values: [name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user], 
     };
+    if(name === null || description === null || id_event_category === null || id_event_location === null || start_date === null || duration_in_minutes === null || price === null || enabled_for_enrollment === null || max_assistance === null || id_creator_user === null || max_assistance < maxCapacity1 || price < 0 || duration_in_minutes < 0){
+      console.log('Bad Request')
+      throw new Error('Bad Request');
+      
+    }
     try {
         const result = await client.query(query);
         createEvent = result.rows[0];
@@ -95,6 +119,7 @@ async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
     } catch (error) {
         console.error('Error al insertar nuevo evento:', error);
     }
+   
     return createEvent;
 
   }
@@ -129,6 +154,8 @@ async getEventsByFilters(name, category, startDate, tag, pageSize, page) {
     }
     return registrosAfectados;
   }
+
+
 
 
 }

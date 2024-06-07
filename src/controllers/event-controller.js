@@ -1,32 +1,37 @@
 import express, { Router, json, query } from "express";
 import { EventService } from "../service/event-service.js";
+import { AuthMiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../utils/paginacion.js";
+
 // import { EventRepository } from "../repositories/event-respository.js";
 const router = express.Router();
 const eventService = new EventService();
-
+const pagination = new Pagination();
 
 // PUNTO 2 Y 3: LISTADO Y BUSQUEDA DE UN EVENTO
 //100% CONFIRMADO QUE NAME Y STARTDATE FUCNIONAN, FALTA ARREGLAR CATEGORY Y TAG
 router.get("/", async (req, res) => {
-    const pageSize = req.query.pageSize;
-    const page = req.query.page;
+    const limit = pagination.parseLimit(req.query.limit);
+    const offset = pagination.parseOffset(req.query.offset);
+    const basePath = "api/event"
     const tag = req.query.tag;
     const startDate = req.query.startDate;
     const name = req.query.name;
     const category = req.query.category;
-    
+
     try {
-        const events = await eventService.getEventsByFilters(name, category, startDate, tag, pageSize, page);
-        // console.log("Eventos en evento-controller: ", events);
-        return res.json(events);
+        const events = await eventService.getEventsByFilters(name, category, startDate, tag, limit, offset);
+        const total = events.length;  // Aquí suponemos que `events` contiene todos los eventos encontrados
+        const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
+        return res.status(200).json({
+            eventos: events,
+            paginacion: paginatedResponse
+        });
     } catch (error) {
-        console.log("Error al buscar");
-        return res.json("Un Error");
+        console.log("Error al buscar eventos:", error);
+        return res.status(500).json({ error: "Un Error ha ocurrido" });
     }
 });
-
-
-
  
 //PUNTO 4: DETALLE DE UN EVENTO
 router.get("/:id", async (req, res) => {
@@ -79,10 +84,9 @@ router.get("/:id/enrollment", (req, res) => {
     "price": 17500,
     "enabled_for_enrollment": true,
     "max_assistance": 90000,
-    "id_creator_user": 1
 }
 */
-router.post("/", async (req, res) => {
+router.post("/", AuthMiddleware ,async (req, res) => {
     const name = req.body.name;
     const description = req.body.description;
     const id_event_category = req.body.id_event_category;
@@ -92,7 +96,7 @@ router.post("/", async (req, res) => {
     const price = req.body.price;
     const enabled_for_enrollment = req.body.enabled_for_enrollment;
     const max_assistance = req.body.max_assistance;
-    const id_creator_user = req.body.id_creator_user;
+    const id_creator_user = req.user.id;
 
     try {
         const evento = await eventService.createEvent(name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
@@ -100,10 +104,11 @@ router.post("/", async (req, res) => {
     }
     catch(error){
         console.log("Error al crear evento");
-        if(error === 'Not Found'){
+        if(error.message === 'Not Found'){
             return res.status(404).json({ message: error });
-        } else if(error === 'Bad Request'){
-            return res.status(400).json({ message: error });
+        }
+        if(error.message === 'Bad Request'){
+            return res.status(400).json("Bad Request");
         }
     }
 });
@@ -120,10 +125,9 @@ router.post("/", async (req, res) => {
     "price": 18000,
     "enabled_for_enrollment": true,
     "max_assistance": 90000,
-    "id_creator_user": 1
 }
 */
-router.put("/:id", async (req, res) => {
+router.put("/:id", AuthMiddleware , async (req, res) => {
     const id = req.params.id;
     const name = req.body.name;
     const description = req.body.description;
@@ -135,12 +139,15 @@ router.put("/:id", async (req, res) => {
     const image = req.body.image;
     const tag = req.body.tag;
     const price = req.body.price;
-    const user_id = req.body.user_id;
+    const user_id = req.user.id;
 // const elEvento = req.body; POLSHU RECOMIENDA HACER UNA CLASE DE EVENTO QUE CONTENGA TODO LO DE ARRIBA, YO TAMBIEN LO PIENSO, PERO NO HAY TIEMPO AHORA PARA HACERLO. LO HACEMOS EN LA SEGUNDA ENTREGA :)
 
     try {
         const evento = await eventService.updateEvent(id, name, description, start_date, end_date, category, capacity, location, image, tag, price, user_id);
-        return res.json(evento);
+        if(evento){
+            return res.status(200).json({ Message: 'Actualizado correctamente' });
+        }
+        
     }
     catch(error){
         console.log("Error al editar evento");
@@ -155,7 +162,7 @@ router.put("/:id", async (req, res) => {
 
 
 */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", AuthMiddleware , async (req, res) => {
     const id = req.params.id;
     try {
         const rowsAffected = await eventService.deleteEvent(id);
@@ -175,11 +182,11 @@ router.delete("/:id", async (req, res) => {
 
 // PUNTO 9: INSCRIPCION DE UN PARTICIPANTE A UN EVENTO
 
-router.post("/:id/enrollment", (req, res) => {
-    const id_user = req.body;
+router.post("/:id/enrollment", AuthMiddleware ,(req, res) => {
+    const id_user = req.user.id;
     const id_event = req.params.id;
     try {
-        const event = eventService.postInscripcionEvento(req.params.id, req.body.id_user);
+        const event = eventService.postInscripcionEvento(id_event, id_user);
         if(!event){
             return res.status(400).json({ error: 'El formato de attended no es valido' });
         } else{
@@ -194,6 +201,29 @@ router.post("/:id/enrollment", (req, res) => {
 
         }
         console.log("Error al inscribir");
+    }
+});
+
+// SOLUCIONAR MAS TARDE ESTE DELETE.
+
+router.delete("/:id/enrollment", AuthMiddleware ,async (req, res) => {
+    const id_user = req.user.id;
+    const id_event = req.params.id;
+    try{
+        const event = await eventService.deleteInscripcionEvento(id_event, id_user);
+        if(!event){
+            return res.status(400).json({ error: 'El formato de attended no es valido' });
+        } else{
+            return res.json("Se ha desinscripto correctamente al evento");
+        }
+    } catch(error){
+        if(error.message === 'Not Found'){
+            res.status(404).json({message:error.message})
+        } else{
+            res.status(400).json("Un Error");
+
+        }
+        console.log("Error al desinscribir");
     }
 });
 
@@ -215,6 +245,9 @@ router.patch("/:id/enrollment", (req, res) => {
         return res.json("Un Error");
     }
 });
+
+
+
 
     
 export default router;
