@@ -6,10 +6,10 @@ export const createToken = (user) => {
         username: user[0].username
     };
      
-    const secretKey = "ClaveSecreta";
+    const secretKey = "ClaveSecreta2024UwU";
 
     const options = {
-        expiresIn : '2h',
+        expiresIn : '1h',
         issuer : 'localhost'
     };
 
@@ -17,7 +17,7 @@ export const createToken = (user) => {
 }
 
 export const desencryptToken = (encryptedToken) => {
-    const secretKey = "ClaveSecreta";
+    const secretKey = "ClaveSecreta2024UwU";
     let token = encryptedToken;
     let payloadOriginal = null;
     try {

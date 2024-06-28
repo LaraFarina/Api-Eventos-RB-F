@@ -10,6 +10,7 @@ export class PaginationDto {
     this.total = total;
   }
 }
+
 export class Pagination {
   constructor() {
     this.limitRegex = /limit=\d+/;
@@ -17,11 +18,11 @@ export class Pagination {
   }
 
   parseLimit(limit) {
-    return !isNaN(parseInt(limit)) ? parseInt(limit) : 2; //modificado porque tengo 3 categorias
+    return !isNaN(parseInt(limit)) ? parseInt(limit) : 2; // Modificar para que haya más elementos en una "página"
   }
 
   parseOffset(offset) {
-    return !isNaN(parseInt(offset)) ? parseInt(offset) : 0;
+    return !isNaN(parseInt(offset)) ? parseInt(offset) : 0; // No modificar, ya que esta sería la primera página
   }
 
   buildPaginationDto(limit, currentOffset, total, path, basePath) {
@@ -29,13 +30,11 @@ export class Pagination {
       limit !== -1 && limit + currentOffset < total
         ? this.buildNextPage(path, limit, currentOffset, basePath)
         : null;
-
     return new PaginationDto(limit, currentOffset, nextPage, total);
   }
 
   buildNextPage(path, limit, currentOffset, basePath) {
     let url = BASE_URL + basePath + path;
-
     url = this.limitRegex.test(url)
       ? url.replace(this.limitRegex, `limit=${limit}`)
       : `${url}${url.includes("?") ? "&" : "?"}limit=${limit}`;
