@@ -6,7 +6,8 @@ client.connect();
 
 export class EventCatRepository {
   async getAllEventsCat(limit, offset) {
-  try {
+    console.log("Estoy en event-category-repository");
+    try {
         const query = {
             text: 'SELECT * FROM event_categories LIMIT $1 OFFSET $2',
             values: [limit, offset]
@@ -26,7 +27,8 @@ export class EventCatRepository {
   
   async getEventsCatById(id) {
     try {
-    const query = "SELECT name FROM event_categories WHERE id = $1";
+      console.log("Estoy en event-category-repository");
+      const query = "SELECT name FROM event_categories WHERE id = $1";
       const values = [id];
       const respuesta = await client.query(query, values);
       return respuesta.rows[0];
@@ -38,7 +40,8 @@ export class EventCatRepository {
 
   async createEventCategory(nameCat, display_order) {
     try {
-   const query = "INSERT INTO event_categories (name, display_order) VALUES ($1, $2) RETURNING *";
+      console.log("Estoy en event-category-repository");
+      const query = "INSERT INTO event_categories (name, display_order) VALUES ($1, $2) RETURNING *";
       const values = [nameCat, display_order];
       const respuesta = await client.query(query, values);
       return respuesta.rows[0];
@@ -50,7 +53,8 @@ export class EventCatRepository {
 
   async updateEventCategory(id, nameCat, display_order) {
     try {
-   const query = "UPDATE event_categories SET name = $1, display_order = $2 WHERE id = $3 RETURNING *";
+      console.log("Estoy en event-category-repository");
+      const query = "UPDATE event_categories SET name = $1, display_order = $2 WHERE id = $3 RETURNING *";
       const values = [nameCat, display_order, id];
       const respuesta = await client.query(query, values);
       if (respuesta.rowCount > 0) {
@@ -66,6 +70,7 @@ export class EventCatRepository {
 
   async deleteEventCategory(id) {
     try {
+      console.log("Estoy en event-category-repository");
       const elementoBorrado = await this.getEventsCatById(id);
       const query = "DELETE FROM event_categories WHERE id = $1 RETURNING *";
       const values = [id];

@@ -10,33 +10,159 @@ client.connect();
 
 export class EventService {
 
-    async getEventsByFilters(name, category, startDate, tag, limit, offset) {
-        try {
-            const eventRepository = new EventRepository();
-            const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
-            return events;
-        } catch (error) {
-            console.error("Error en getEventsByFilters de EventService:", error);
-            throw new Error('Error al obtener eventos por filtros');
-        }
-    }
+    // async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+    //     try {
+    //         const eventRepository = new EventRepository();
+    //         const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
+    //         return events;
+    //     } catch (error) {
+    //         console.error("Error en getEventsByFilters de EventService:", error);
+    //         throw new Error('Error al obtener eventos por filtros');
+    //     }
+    //   } 
 
-  async getEventById (id) {
-    let returnEntity = null;
-    console.log("Estoy en: getEventById");
-    try {
-      const query = {
-        text: 'SELECT * FROM events WHERE id = $1',
-        values: [id]
-      };
-      const result = await client.query(query);
-      returnEntity = result.rows[0];
-    } catch (error) {
-      console.log(error);
-    }
-    return returnEntity;
+    async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+      try {
+          const eventRepository = new EventRepository();
+          const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
+
+          // Formatear la respuesta con la estructura correcta
+          const formattedEvents = events.map(event => ({
+              id: event.id,
+              name: event.name,
+              description: event.description,
+              event_category: {
+                  id: event.id_event_category,
+                  name: event.category_name
+              },
+              event_location: {
+                  id: event.id_event_location,
+                  name: event.event_location_name,
+                  full_address: event.full_address,
+                  latitude: event.event_location_latitude,
+                  longitude: event.event_location_longitude,
+                  max_capacity: event.event_location_max_capacity,
+                  location: {
+                      id: event.location_id,
+                      name: event.location_name,
+                      latitude: event.location_latitude,
+                      longitude: event.location_longitude,
+                      province: {
+                          id: event.province_id,
+                          name: event.province_name,
+                          full_name: event.province_full_name,
+                          latitude: event.province_latitude,
+                          longitude: event.province_longitude,
+                          display_order: event.province_display_order
+                      }
+                  }
+              },
+              start_date: event.start_date,
+              duration_in_minutes: event.duration_in_minutes,
+              price: event.price,
+              enabled_for_enrollment: event.enabled_for_enrollment,
+              max_assistance: event.max_assistance,
+              creator_user: {
+                  id: event.id_creator_user,
+                  username: event.username,
+                  first_name: event.first_name,
+                  last_name: event.last_name
+              },
+              tags: event.tags ? event.tags.map(tag => ({
+                  id: tag.id,
+                  name: tag.name
+              })) : []
+          }));
+
+          return formattedEvents;
+      } catch (error) {
+          console.error("Error en getEventsByFilters de EventService:", error);
+          throw new Error('Error al obtener eventos por filtros');
+      }
   }
-  
+
+
+
+
+  // async getEventById (id) {
+  //   let returnEntity = null;
+  //   console.log("Estoy en: getEventById");
+  //   try {
+  //     const query = {
+  //       text: 'SELECT * FROM events WHERE id = $1',
+  //       values: [id]
+  //     };
+  //     const result = await client.query(query);
+  //     returnEntity = result.rows[0];
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  //   return returnEntity;
+  // }
+  async getEventById(id) {
+    try {
+        const eventRepository = new EventRepository();
+        const event = await eventRepository.getEventById(id);
+
+        if (!event) {
+            return null;
+        }
+
+        // Formatear la respuesta con la estructura correcta
+        const formattedEvent = {
+            id: event.id,
+            name: event.name,
+            description: event.description,
+            event_category: {
+                id: event.id_event_category,
+                name: event.category_name
+            },
+            event_location: {
+                id: event.id_event_location,
+                name: event.event_location_name,
+                full_address: event.full_address,
+                latitude: event.event_location_latitude,
+                longitude: event.event_location_longitude,
+                max_capacity: event.event_location_max_capacity,
+                location: {
+                    id: event.location_id,
+                    name: event.location_name,
+                    latitude: event.location_latitude,
+                    longitude: event.location_longitude,
+                    province: {
+                        id: event.province_id,
+                        name: event.province_name,
+                        full_name: event.province_full_name,
+                        latitude: event.province_latitude,
+                        longitude: event.province_longitude,
+                        display_order: event.province_display_order
+                    }
+                }
+            },
+            start_date: event.start_date,
+            duration_in_minutes: event.duration_in_minutes,
+            price: event.price,
+            enabled_for_enrollment: event.enabled_for_enrollment,
+            max_assistance: event.max_assistance,
+            creator_user: {
+                id: event.id_creator_user,
+                username: event.username,
+                first_name: event.first_name,
+                last_name: event.last_name
+            },
+            tags: event.tags ? event.tags.map(tag => ({
+                id: tag.id,
+                name: tag.name
+            })) : []
+        };
+
+        return formattedEvent;
+    } catch (error) {
+        console.error("Error en getEventById de EventService:", error);
+        throw new Error('Error al obtener el evento por ID');
+    }
+}
+
 
   
   async getAllEventsUnconfirmedName(name, category, startDate, tag) {
@@ -51,36 +177,73 @@ export class EventService {
 }
 
 
-  async getParticipantesEvento(id, first_name, last_name, userName, attended, rating){
-    if(attended) {
+  // async getParticipantesEvento(id, first_name, last_name, userName, attended, rating){
+  //   if(attended) {
+  //       return false;
+  //   }
+  //   let queryPrimero = "";
+  //   const array = []
+  //   if(first_name){
+  //     queryPrimero +=  " AND u.first_name = $2";
+  //     array.push(first_name)
+  //   }    
+  //   if(last_name){
+  //     queryPrimero += " AND u.last_name = $3";
+  //     array.push(last_name)
+  //   }  
+  //   if(userName){
+  //     queryPrimero += " AND u.username = $4";
+  //     array.push(userName)
+  //   }
+  //   if(attended){
+  //     queryPrimero += " AND er.attended = $5";
+  //     array.push(attended)
+  //   }    
+  //   if(rating){
+  //     queryPrimero += " AND er.rating >= $6";
+  //     array.push(rating)
+  //   }
+  //   const eventRepository = new EventRepository();
+  //   const resultadoGet = await eventRepository.getParticipantesEvento(id, queryPrimero, array);
+  //   return resultadoGet;
+  // }
+
+  // AHORA CON ESTE DE ACA ABAJO FUNCIONA EL PUNTO 5 CORRECTAMENTE
+  async getParticipantesEvento(id, first_name, last_name, username, attended, rating) {
+    if (attended) {
         return false;
     }
+
     let queryPrimero = "";
-    const array = []
-    if(first_name){
-      queryPrimero +=  " AND u.first_name = $2";
-      array.push(first_name)
-    }    
-    if(last_name){
-      queryPrimero += " AND u.last_name = $3";
-      array.push(last_name)
+    const arrayParams = [id];
+
+    if (first_name) {
+        queryPrimero += " AND u.first_name = $" + (arrayParams.length + 1);
+        arrayParams.push(first_name);
     }
-    if(userName){
-      queryPrimero += " AND u.username = $4";
-      array.push(userName)
+    if (last_name) {
+        queryPrimero += " AND u.last_name = $" + (arrayParams.length + 1);
+        arrayParams.push(last_name);
     }
-    if(attended){
-      queryPrimero += " AND er.attended = $5";
-      array.push(attended)
-    }    
-    if(rating){
-      queryPrimero += " AND er.rating >= $6";
-      array.push(rating)
+    if (username) {
+        queryPrimero += " AND u.username = $" + (arrayParams.length + 1);
+        arrayParams.push(username);
     }
+    if (attended) {
+        queryPrimero += " AND er.attended = $" + (arrayParams.length + 1);
+        arrayParams.push(attended);
+    }
+    if (rating) {
+        queryPrimero += " AND er.rating >= $" + (arrayParams.length + 1);
+        arrayParams.push(rating);
+    }
+
     const eventRepository = new EventRepository();
-    const resultadoGet = await eventRepository.getParticipantesEvento(id, queryPrimero, array);
+    const resultadoGet = await eventRepository.getParticipantesEvento(id, queryPrimero, arrayParams);
     return resultadoGet;
-  }
+}
+
+
   async postInscripcionEvento(id_user, id_event){
     const eventRepository = new EventRepository();
     const resultadoPost = await eventRepository.postInscripcionEvento(id_user, id_event);

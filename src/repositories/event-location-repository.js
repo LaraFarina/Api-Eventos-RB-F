@@ -72,6 +72,7 @@ export class EventLocationRepository{
 
 
     async putEventLocation(id, id_location, name, full_address, max_capacity, latitude, longitude, id_user) {
+        console.log("ESTOY EN EVENT-LOCATION-REPOSITORY");
         
         if (!name || !full_address || name.length < 3 || full_address.length < 3 || max_capacity <= 0) {
             throw new Error('Bad Request');

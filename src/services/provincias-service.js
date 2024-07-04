@@ -119,25 +119,26 @@ async deleteProvince(id) {
 
   
 
-    async updateProvince(id, name, full_name, latitude, longitude){
-        let updatedProvince = null;
-        const query = {
-            text: 'UPDATE provinces SET name = $1, full_name = $2, latitude = $3, longitude = $4 WHERE id = $5',
-            values: [name, full_name, latitude, longitude, id],
-        };
-    
-        try {
-            const result = await client.query(query);
-            updatedProvince = result.rows[0];
-            console.log('Provincia actualizada:', updatedProvince);
-        } catch (error) {
-            console.error('Error al actualizar provincia:', error);
-        }
-        if(!updatedProvince){
-            throw new Error('Not Found');
-        }
-        return updatedProvince;
-    }
+async updateProvince(id, name, full_name, latitude, longitude) {
+  const query = {
+      text: 'UPDATE provinces SET name = $1, full_name = $2, latitude = $3, longitude = $4 WHERE id = $5',
+      values: [name, full_name, latitude, longitude, id],
+  };
+
+  try {
+      const result = await client.query(query);
+      
+      if (result.rowCount === 0) {
+          throw new Error('Not Found');
+      }
+
+      console.log('Provincia actualizada:', { id, name, full_name, latitude, longitude });
+      return { id, name, full_name, latitude, longitude };
+  } catch (error) {
+      console.error('Error al actualizar provincia:', error);
+      throw error;
+  }
+}
 
     async findLocationsByProvincePaginated(id, limit, offset){
         let returnEntity = null;

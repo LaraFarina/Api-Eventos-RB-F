@@ -1,6 +1,6 @@
 import express, { Router, json, query } from "express";
 import { EventLocationService } from "../service/event-location-service.js";
-import { AuthMiddleware } from "../auth/authmiddleware.js";
+import { AuthMiddleware } from "../auth/AuthMiddleware.js";
 import { Pagination } from "../utils/paginacion.js";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
         if (total != null) {
             const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
             return res.status(200).json({
-                locacion_de_eventos: locations,
+                collection: locations,
                 paginacion: paginatedResponse
             });
         } else {
@@ -26,7 +26,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
         }
     } catch (error) {
         console.error("Error al obtener la localización:", error);
-        return res.status(500).json("Ocurrió un error");
+        return res.status(500).json("Ha ocurrido un error");
     }
 });
 
@@ -44,7 +44,7 @@ router.get("/:id", AuthMiddleware, async (req, res) => {
     }
     catch(error){
         console.log("Error al obtener la localización por ID");
-        return res.json("Ocurrió un error");
+        return res.json("Ha ocurrido un error");
     }
 });
 
@@ -58,6 +58,7 @@ router.post("/", AuthMiddleware, async (req, res) => {
     const id_creator_user = req.user.id;
     try {
         const location = await eventLocationService.createEventLocation(id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user);
+        console.log("estoy en POST event-location-controller");
         return res.status(200).json("Localización creada con éxito");
     }
     catch(error){
@@ -105,7 +106,7 @@ router.delete("/:id", AuthMiddleware, async (req,res) =>{
         }
     } catch(error){
         console.log("Error al eliminar evento");
-        return res.json("Ocurrió un error");
+        return res.json("Un Error");
     }
 });
 

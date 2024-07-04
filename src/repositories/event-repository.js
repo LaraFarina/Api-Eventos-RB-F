@@ -11,45 +11,146 @@ const respuesta = await client.query(sql);
 
 //tercera parte de la travesia, aquí se ingresa la query y se obtiene la respuesta en rows
 export class EventRepository{
-      async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+//       async getEventsByFilters(name, category, startDate, tag, limit, offset) {
 
 
-           let sqlQuery = "SELECT * FROM events WHERE 1=1";
+//            let sqlQuery = "SELECT * FROM events WHERE 1=1";
            
-           if (name) {
-               sqlQuery += ` AND "name" LIKE '%${name}%'`;
-            }
-           if (category) {
-               const categoryIdQuery = `SELECT id FROM event_categories WHERE "name" = '${category}'`;
-               const { rows: categoryRows } = await client.query(categoryIdQuery);
-               const categoryId = categoryRows[0]?.id;
-               if (categoryId) {
-                   sqlQuery += ` AND id_event_category = '${categoryId}'`;
-               }
-           }
-          if (startDate) {
-               sqlQuery += ` AND start_date::date = '${startDate}'::date`;
-           }
-           if (tag) {
-            const tagIdQuery = `SELECT id FROM tags WHERE "name" = '${tag}'`;
-               const { rows: tagRows } = await client.query(tagIdQuery);
-               const tagId = tagRows[0]?.id;
-              if (tagId) {
-                    sqlQuery += ` AND id IN (SELECT id_event FROM event_tags WHERE id_tag = '${tagId}')`;
-                }
-            }
+//            if (name) {
+//                sqlQuery += ` AND "name" LIKE '%${name}%'`;
+//             }
+//            if (category) {
+//                const categoryIdQuery = `SELECT id FROM event_categories WHERE "name" = '${category}'`;
+//                const { rows: categoryRows } = await client.query(categoryIdQuery);
+//                const categoryId = categoryRows[0]?.id;
+//                if (categoryId) {
+//                    sqlQuery += ` AND id_event_category = '${categoryId}'`;
+//                }
+//            }
+//           if (startDate) {
+//                sqlQuery += ` AND start_date::date = '${startDate}'::date`;
+//            }
+//            if (tag) {
+//             const tagIdQuery = `SELECT id FROM tags WHERE "name" = '${tag}'`;
+//                const { rows: tagRows } = await client.query(tagIdQuery);
+//                const tagId = tagRows[0]?.id;
+//               if (tagId) {
+//                     sqlQuery += ` AND id IN (SELECT id_event FROM event_tags WHERE id_tag = '${tagId}')`;
+//                 }
+//             }
     
-            // Agregar paginación utilizando limit y offset
-            sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
-    try {
-    const { rows } = await client.query(sqlQuery);
+//             // Agregar paginación utilizando limit y offset
+//             sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+//     try {
+//     const { rows } = await client.query(sqlQuery);
 
-    return rows;
-    } catch (error) {
-    console.error("Error al ejecutar la consulta SQL:", error);
-    throw new Error('Error al obtener eventos por filtros');
+//     return rows;
+//     } catch (error) {
+//     console.error("Error al ejecutar la consulta SQL:", error);
+//     throw new Error('Error al obtener eventos por filtros');
+//     }
+//  }
+
+async getEventsByFilters(name, category, startDate, tag, limit, offset) {
+    let sqlQuery = `
+        SELECT 
+            e.*, 
+            ec.name as category_name, 
+            el.name as event_location_name, 
+            el.full_address, 
+            el.latitude as event_location_latitude, 
+            el.longitude as event_location_longitude, 
+            el.max_capacity as event_location_max_capacity,
+            loc.id as location_id,
+            loc.name as location_name,
+            loc.latitude as location_latitude,
+            loc.longitude as location_longitude,
+            prov.id as province_id,
+            prov.name as province_name,
+            prov.full_name as province_full_name,
+            prov.latitude as province_latitude,
+            prov.longitude as province_longitude,
+            prov.display_order as province_display_order
+        FROM events e
+        LEFT JOIN event_categories ec ON e.id_event_category = ec.id
+        LEFT JOIN event_locations el ON e.id_event_location = el.id
+        LEFT JOIN locations loc ON el.id_location = loc.id
+        LEFT JOIN provinces prov ON loc.id_province = prov.id
+        WHERE 1=1`;
+
+    if (name) {
+        sqlQuery += ` AND e.name LIKE '%${name}%'`;
     }
- }
+    if (category) {
+        const categoryIdQuery = `SELECT id FROM event_categories WHERE name = '${category}'`;
+        const { rows: categoryRows } = await client.query(categoryIdQuery);
+        const categoryId = categoryRows[0]?.id;
+        if (categoryId) {
+            sqlQuery += ` AND e.id_event_category = '${categoryId}'`;
+        }
+    }
+    if (startDate) {
+        sqlQuery += ` AND e.start_date::date = '${startDate}'::date`;
+    }
+    if (tag) {
+        const tagIdQuery = `SELECT id FROM tags WHERE name = '${tag}'`;
+        const { rows: tagRows } = await client.query(tagIdQuery);
+        const tagId = tagRows[0]?.id;
+        if (tagId) {
+            sqlQuery += ` AND e.id IN (SELECT id_event FROM event_tags WHERE id_tag = '${tagId}')`;
+        }
+    }
+
+    sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+
+    try {
+        const { rows } = await client.query(sqlQuery);
+        return rows;
+    } catch (error) {
+        console.error("Error al ejecutar la consulta SQL:", error);
+        throw new Error('Error al obtener eventos por filtros');
+    }
+}
+
+async getEventById(id) {
+    const sqlQuery = `
+        SELECT 
+            e.*, 
+            ec.name as category_name, 
+            el.name as event_location_name, 
+            el.full_address, 
+            el.latitude as event_location_latitude, 
+            el.longitude as event_location_longitude, 
+            el.max_capacity as event_location_max_capacity,
+            loc.id as location_id,
+            loc.name as location_name,
+            loc.latitude as location_latitude,
+            loc.longitude as location_longitude,
+            prov.id as province_id,
+            prov.name as province_name,
+            prov.full_name as province_full_name,
+            prov.latitude as province_latitude,
+            prov.longitude as province_longitude,
+            prov.display_order as province_display_order
+        FROM events e
+        LEFT JOIN event_categories ec ON e.id_event_category = ec.id
+        LEFT JOIN event_locations el ON e.id_event_location = el.id
+        LEFT JOIN locations loc ON el.id_location = loc.id
+        LEFT JOIN provinces prov ON loc.id_province = prov.id
+        WHERE e.id = $1`;
+
+    try {
+        const { rows } = await client.query({
+            text: sqlQuery,
+            values: [id]
+        });
+        return rows[0];
+    } catch (error) {
+        console.error("Error al ejecutar la consulta SQL:", error);
+        throw new Error('Error al obtener el evento por ID');
+    }
+}
+
 
  async getAllEventsUnconfirmedName(name, category, startDate, tag, limit, offset) {
 
@@ -91,21 +192,55 @@ throw new Error('Error al obtener eventos por filtros');
 }
 }
     
+    // async getParticipantesEvento(id, queryPrimero, arrayParams) {
+    //     let obtenerEventosParticipantes;
+    //     const sqlQuery = {
+    //         text: 'SELECT er.*, u.first_name, u.last_name, u.username, e.name FROM event_enrollments er ' +
+    //               'LEFT JOIN users u ON er.id_user = u.id ' +
+    //               'LEFT JOIN events e ON er.id_event = e.id ' +
+    //               'LEFT JOIN event_tags et ON e.id = et.id_event ' +
+    //               'LEFT JOIN tags ON et.id = tags.id ' +
+    //               'WHERE e.id = $1 ' + queryPrimero,
+    //         values: [id].concat(arrayParams)
+    //     };
+    //     try{
+    //         const result = await client.query(sqlQuery);
+    //         obtenerEventosParticipantes = result.rows[0];
+    //         console.log(obtenerEventosParticipantes);
+    //     } catch (error){
+    //         console.error("error al obtener", error)
+    //     }
+    //     return obtenerEventosParticipantes;
+    // }
+
+    // AHORA CON ESTE DE ACA ABAJO FUNCIONA EL PUNTO 5 CORRECTAMENTE
     async getParticipantesEvento(id, queryPrimero, arrayParams) {
         let obtenerEventosParticipantes;
+    
         const sqlQuery = {
-            text: 'SELECT er.*,u.first_name,u.last_name,u.username,e.name FROM event_enrollments er LEFT JOIN users u ON er.id_user = u.id LEFT JOIN events e ON er.id_event = e.id LEFT JOIN event_tags et ON e.id = et.id_event LEFT JOIN tags ON et.id = tags.id WHERE e.id = $1' + queryPrimero, 
-            values: [id].concat(arrayParams)
+            text: 'SELECT er.*, u.first_name, u.last_name, u.username, e.name ' +
+                  'FROM event_enrollments er ' +
+                  'LEFT JOIN users u ON er.id_user = u.id ' +
+                  'LEFT JOIN events e ON er.id_event = e.id ' +
+                  'LEFT JOIN event_tags et ON e.id = et.id_event ' +
+                  'LEFT JOIN tags ON et.id = tags.id ' +
+                  'WHERE e.id = $1' + queryPrimero,
+            values: arrayParams
         };
-        try{
+    
+        try {
             const result = await client.query(sqlQuery);
             obtenerEventosParticipantes = result.rows[0];
             console.log(obtenerEventosParticipantes);
-        } catch (error){
-            console.error("error al obtener", error)
+        } catch (error) {
+            console.error("error al obtener", error);
+            throw error;  // Importante lanzar el error para que se maneje en capas superiores
         }
+    
         return obtenerEventosParticipantes;
     }
+    
+
     async postInscripcionEvento(id_user,id_event) { 
         let inscipcionEvento;
         const query = {

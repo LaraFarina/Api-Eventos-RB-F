@@ -1,6 +1,6 @@
 import express, { Router, json, query } from "express";
 import { EventService } from "../service/event-service.js";
-import { AuthMiddleware } from "../auth/authmiddleware.js";
+import { AuthMiddleware } from "../auth/AuthMiddleware.js";
 import { Pagination } from "../utils/paginacion.js";
 
 
@@ -9,11 +9,10 @@ const eventService = new EventService();
 const pagination = new Pagination();
 
 // PUNTO 2 Y 3: LISTADO Y BUSQUEDA DE UN EVENTO
-
 router.get("/", async (req, res) => {
     const limit = pagination.parseLimit(req.query.limit);
     const offset = pagination.parseOffset(req.query.offset);
-    const basePath = "api/event"
+    const basePath = "/api/event";
     const tag = req.query.tag;
     const startDate = req.query.startDate;
     let name = req.query.name;
@@ -24,64 +23,80 @@ router.get("/", async (req, res) => {
     }
 
     try {
-     
         const events = await eventService.getEventsByFilters(name, category, startDate, tag, limit, offset);
-        const total = await eventService.getAllEventsUnconfirmedName(name, category, startDate, tag);  
+        const total = await eventService.getAllEventsUnconfirmedName(name, category, startDate, tag);
         const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
-        return res.status(200).json({
-            eventos: events,
-            paginacion: paginatedResponse
-        });
+
+        const response = {
+            collection: events,
+            pagination: paginatedResponse
+        };
+
+        return res.status(200).json(response);
     } catch (error) {
-        console.log("Error al buscar evento:", error);
-        return res.status(500).json({ error: "Ocurrió un error" });
+        console.log("Error al buscar eventos:", error);
+        return res.status(500).json({ error: "Un Error ha ocurrido" });
     }
 });
+
  
 //PUNTO 4: DETALLE DE UN EVENTO
+
 router.get("/:id", async (req, res) => {
-    
     try {
         const evento = await eventService.getEventById(req.params.id);
         if (!evento) {
             return res.status(404).json({ error: 'Evento no encontrado' });
         }
-        else{
-            return res.status(200).json({ Evento: evento });
-        }
-        return res.json(evento);
-    }
-    catch(error){
-        console.log("El evento  no existe");
-        return res.json("Ocurrió un error");
+        return res.status(200).json(evento);
+        //Elimino 'Evento: ' porque no es necesario segun el ejemplo de la consigna
+    } catch (error) {
+        console.log("No hay evento existente");
+        return res.status(500).json({ error: 'Ha ocurrido un error' });
     }
 });
 
 
-// PUNTO 5: LISTADO DE PARTICIPANTES DE UN EVENTO
+
+// PUNTO 5: LISTADO DE PARTICIPANTES DE UN EVENTO.
 
 router.get("/:id/enrollment", async (req, res) => {
     const first_name = req.query.first_name;
     const last_name = req.query.last_name;
-    const userName = req.query.userName;
+    const username = req.query.username;
     const attended = req.query.attended;
     const rating = req.query.rating;
     console.log("controller")
     try {
-        const participantesEvento = await eventService.getParticipantesEvento(req.params.id, first_name, last_name, userName, attended, rating);
+        const participantesEvento = await eventService.getParticipantesEvento(req.params.id, first_name, last_name, username, attended, rating);
         
         if(!participantesEvento){
-            return res.status(400).json({ error: 'El formato de attended no es valido' });
+            return res.status(200).json({ participantesEvento: []});
         }
         return res.json(participantesEvento);
     }
     catch(error){
         console.log("Error al buscar");
-        return res.json("Ocurrió un error");
+        return res.json("Un Error");
     }
 });
 
 
+// PUNTO 8: CRUD
+// Crear un evento
+// EJEMPLO USADO:
+/*{
+    "name": "Harry Styles",
+    "description": "Un concierto muy STYLE",
+    "id_event_category": 1,
+    "id_event_location": 1,
+    "start_date": "2022/12/03 t 00:00:00" ,
+    "duration_in_minutes": 210,
+    "price": 17500,
+    "enabled_for_enrollment": true,
+    "max_assistance": 90000,
+}
+*/
 router.post("/", AuthMiddleware ,async (req, res) => {
     const name = req.body.name;
     const description = req.body.description;
@@ -109,6 +124,32 @@ router.post("/", AuthMiddleware ,async (req, res) => {
     }
 });
 
+//EJEMPLO USADO:
+/*
+{
+    "name": "Coldplay",
+    "description": "Un show de Coldplay",
+    "id_event_category": 1,
+    "id_event_location": 1,
+    "start_date": "2022/11/01 t 20:00:00" ,
+    "duration_in_minutes": 180,
+    "price": 18000,
+    "enabled_for_enrollment": true,
+    "max_assistance": 90000,
+}
+
+{
+    "name": "Harry Styles",
+    "description": "Un concierto muy STYLE",
+    "id_event_category": 1,
+    "id_event_location": 1,
+    "start_date": "2022/12/03 t 00:00:00" ,
+    "duration_in_minutes": 210,
+    "price": 17500,
+    "enabled_for_enrollment": true,
+    "max_assistance": 90000
+}
+*/
 router.put("/:id", AuthMiddleware , async (req, res) => {
     const id = req.params.id;
     const name = req.body.name;
@@ -132,24 +173,35 @@ router.put("/:id", AuthMiddleware , async (req, res) => {
     }
     catch(error){
         console.log("Error al editar evento");
-        return res.json("Ocurrió un error");
+        return res.json("Un Error");
     }
 });
 
-
-router.delete("/:id", AuthMiddleware , async (req, res) => {
+router.delete("/:id", AuthMiddleware, async (req, res) => {
     const id = req.params.id;
+    const userId = req.user.id;
+
     try {
+        // revisa mediante la funcion del evento por id el usuario creador
+        const event = await eventService.getEventById(id);
+        if (!event) {
+            return res.status(404).json({ mensaje: 'Evento no encontrado' });
+        }
+
+        if (event.id_creator_user !== userId) {
+            return res.status(403).json({ mensaje: 'No tienes permisos para eliminar este evento' });
+        }
+
+        // si pasa los mensajes anteriores procede a eliminar el evento
         const rowsAffected = await eventService.deleteEvent(id);
-        if (rowsAffected > 0){
-            return res.status(200).json({'mensaje':'Se elimino el evento'});
-        }else{
-            return res.status(400).json({'mensaje':'No se pudo eliminar'});
-        }        
-    }
-    catch(error){
-        console.log("Error al eliminar evento");
-        return res.json("Ocurrió un error");
+        if (rowsAffected > 0) {
+            return res.status(200).json({ mensaje: 'Se eliminó el evento' });
+        } else {
+            return res.status(400).json({ mensaje: 'No se eliminó el evento' });
+        }
+    } catch (error) {
+        console.log("Error al eliminar evento:", error);
+        return res.status(500).json({ mensaje: 'Error interno al eliminar el evento' });
     }
 });
 
@@ -214,7 +266,6 @@ router.delete("/:id/enrollment", AuthMiddleware ,async (req, res) => {
 });
 
 /* PUNTO 10: Rating de un Evento */
-
 
 router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     const id = req.params.id; //id del evento
