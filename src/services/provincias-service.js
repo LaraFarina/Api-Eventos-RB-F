@@ -1,5 +1,4 @@
 import { query } from "express";
-// import {ProvinciasRepository} from "../repositories/event-respository.js";
 import pg from "pg";
 import { config } from "../repositories/db.js"; 
 import { Pagination } from "../utils/paginacion.js";
@@ -40,7 +39,7 @@ export class ProvinciasService {
           };
           const result = await client.query(query);
 
-          returnEntity = result.rows; //este rows NO tiene que ir con 0, ya que debe tomar todos los valores
+          returnEntity = result.rows; 
           console.log(result);
         } catch (error) {
           console.log(error);
@@ -87,16 +86,12 @@ async deleteProvince(id) {
   let deletedLocationNames = [];
 
   try {
-    // Buscar si la provincia tiene localidades asociadas
     const locations = await locationService.findLocationsByProvince(id);
     if (locations.length > 0) {
       console.log('Localidades encontradas:', locations);
-      // Si hay localidades asociadas, eliminarlas primero
       deletedLocationNames = await locationService.deleteLocationsByProvinceId(id);
       console.log('Localidades eliminadas:', deletedLocationNames);
     }
-
-    // Eliminar la provincia
     const deleteQuery = {
       text: 'DELETE FROM provinces WHERE id = $1 RETURNING *',
       values: [id]
@@ -107,13 +102,13 @@ async deleteProvince(id) {
     console.log('Provincia eliminada:', deletedProvince);
   } catch (error) {
     console.error('Error al eliminar provincia:', error);
-    throw error; // Relanza el error para manejarlo en el controlador
+    throw error; 
   }
 
   return {
     province: deletedProvince,
     deletedLocationNames: deletedLocationNames
-  }; // Devuelve la provincia eliminada y los nombres de las localidades eliminadas
+  }; 
 }
 
 

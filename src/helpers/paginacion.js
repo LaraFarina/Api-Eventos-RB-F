@@ -18,11 +18,11 @@ export class Pagination {
   }
 
   parseLimit(limit) {
-    return !isNaN(parseInt(limit)) ? parseInt(limit) : 2; // Modificar para que haya más elementos en una "página"
+    return !isNaN(parseInt(limit)) ? parseInt(limit) : 2; 
   }
 
   parseOffset(offset) {
-    return !isNaN(parseInt(offset)) ? parseInt(offset) : 0; // No modificar, ya que esta sería la primera página
+    return !isNaN(parseInt(offset)) ? parseInt(offset) : 0; 
   }
 
   buildPaginationDto(limit, currentOffset, total, path, basePath) {

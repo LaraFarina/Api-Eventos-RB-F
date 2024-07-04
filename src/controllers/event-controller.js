@@ -8,7 +8,6 @@ const router = express.Router();
 const eventService = new EventService();
 const pagination = new Pagination();
 
-// PUNTO 2 Y 3: LISTADO Y BUSQUEDA DE UN EVENTO
 router.get("/", async (req, res) => {
     const limit = pagination.parseLimit(req.query.limit);
     const offset = pagination.parseOffset(req.query.offset);
@@ -40,7 +39,6 @@ router.get("/", async (req, res) => {
 });
 
  
-//PUNTO 4: DETALLE DE UN EVENTO
 
 router.get("/:id", async (req, res) => {
     try {
@@ -49,7 +47,6 @@ router.get("/:id", async (req, res) => {
             return res.status(404).json({ error: 'Evento no encontrado' });
         }
         return res.status(200).json(evento);
-        //Elimino 'Evento: ' porque no es necesario segun el ejemplo de la consigna
     } catch (error) {
         console.log("No hay evento existente");
         return res.status(500).json({ error: 'Ha ocurrido un error' });
@@ -58,7 +55,6 @@ router.get("/:id", async (req, res) => {
 
 
 
-// PUNTO 5: LISTADO DE PARTICIPANTES DE UN EVENTO.
 
 router.get("/:id/enrollment", async (req, res) => {
     const first_name = req.query.first_name;
@@ -82,21 +78,7 @@ router.get("/:id/enrollment", async (req, res) => {
 });
 
 
-// PUNTO 8: CRUD
-// Crear un evento
-// EJEMPLO USADO:
-/*{
-    "name": "Harry Styles",
-    "description": "Un concierto muy STYLE",
-    "id_event_category": 1,
-    "id_event_location": 1,
-    "start_date": "2022/12/03 t 00:00:00" ,
-    "duration_in_minutes": 210,
-    "price": 17500,
-    "enabled_for_enrollment": true,
-    "max_assistance": 90000,
-}
-*/
+
 router.post("/", AuthMiddleware ,async (req, res) => {
     const name = req.body.name;
     const description = req.body.description;
@@ -124,32 +106,7 @@ router.post("/", AuthMiddleware ,async (req, res) => {
     }
 });
 
-//EJEMPLO USADO:
-/*
-{
-    "name": "Coldplay",
-    "description": "Un show de Coldplay",
-    "id_event_category": 1,
-    "id_event_location": 1,
-    "start_date": "2022/11/01 t 20:00:00" ,
-    "duration_in_minutes": 180,
-    "price": 18000,
-    "enabled_for_enrollment": true,
-    "max_assistance": 90000,
-}
 
-{
-    "name": "Harry Styles",
-    "description": "Un concierto muy STYLE",
-    "id_event_category": 1,
-    "id_event_location": 1,
-    "start_date": "2022/12/03 t 00:00:00" ,
-    "duration_in_minutes": 210,
-    "price": 17500,
-    "enabled_for_enrollment": true,
-    "max_assistance": 90000
-}
-*/
 router.put("/:id", AuthMiddleware , async (req, res) => {
     const id = req.params.id;
     const name = req.body.name;
@@ -182,7 +139,6 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
     const userId = req.user.id;
 
     try {
-        // revisa mediante la funcion del evento por id el usuario creador
         const event = await eventService.getEventById(id);
         if (!event) {
             return res.status(404).json({ mensaje: 'Evento no encontrado' });
@@ -192,7 +148,6 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
             return res.status(403).json({ mensaje: 'No tienes permisos para eliminar este evento' });
         }
 
-        // si pasa los mensajes anteriores procede a eliminar el evento
         const rowsAffected = await eventService.deleteEvent(id);
         if (rowsAffected > 0) {
             return res.status(200).json({ mensaje: 'Se eliminó el evento' });
@@ -207,36 +162,27 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
 
 
 
-// PUNTO 9: INSCRIPCION DE UN PARTICIPANTE A UN EVENTO
 
 router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
     const id_user = req.user.id;
     const id_event = req.params.id;
 
     try {
-        // Verificar si el evento existe
         const event = await eventService.getEventById(id_event);
         if (!event) {
             return res.status(404).json({ error: 'Evento no encontrado' });
         }
-
-        // Verificar si el evento está habilitado para inscripción
         if (!event.enabled_for_enrollment) {
             return res.status(400).json({ error: 'El evento no está habilitado para inscripción' });
         }
-
-        // Verificar si el evento ha alcanzado la capacidad máxima
         if (event.current_attendance >= event.max_assistance) {
             return res.status(400).json({ error: 'El evento ha alcanzado la capacidad máxima' });
         }
-
-        // Verificar si el usuario ya está inscrito en el evento
         const isEnrolled = await eventService.isUserEnrolled(id_user, id_event);
         if (isEnrolled) {
             return res.status(400).json({ error: 'El usuario ya está inscrito en el evento' });
         }
 
-        // Si todas las verificaciones pasan, proceder con la inscripción
         await eventService.postInscripcionEvento(id_user, id_event);
         return res.status(201).json({ message: 'Usuario inscrito exitosamente' });
 
@@ -265,11 +211,10 @@ router.delete("/:id/enrollment", AuthMiddleware ,async (req, res) => {
     }
 });
 
-/* PUNTO 10: Rating de un Evento */
 
 router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
-    const id = req.params.id; //id del evento
-    const rating = req.params.entero; //rating
+    const id = req.params.id; 
+    const rating = req.params.entero; 
     const observations = req.body.observations;
     const userId = req.user.id; 
 
@@ -278,7 +223,6 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     }
     
     try {
-        // Verificar si el usuario está registrado en el evento y si el evento ya ha finalizado
         const eventEnrollment = await eventService.getEventEnrollment(id, userId);
         if (!eventEnrollment) {
             return res.status(404).json({ error: 'Inscripción no encontrada' });
@@ -292,13 +236,10 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
         if (new Date(start_date) > hoy) {
             return res.status(400).json({ error: 'El evento aún no ha finalizado' });
         }
-
-        // Actualizar la inscripción
         const updatedEnrollment = await eventService.updateEventEnrollment(id_enrollment, rating, observations);
         console.log(updatedEnrollment)
         return res.status(200).json(updatedEnrollment);
     } catch (error) {
-        // Manejar errores y retornar una respuesta adecuada
         if (error.message === 'Usuario no autenticado') {
             return res.status(401).json({ error: 'Usuario no autenticado' });
         }

@@ -10,23 +10,12 @@ client.connect();
 
 export class EventService {
 
-    // async getEventsByFilters(name, category, startDate, tag, limit, offset) {
-    //     try {
-    //         const eventRepository = new EventRepository();
-    //         const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
-    //         return events;
-    //     } catch (error) {
-    //         console.error("Error en getEventsByFilters de EventService:", error);
-    //         throw new Error('Error al obtener eventos por filtros');
-    //     }
-    //   } 
 
     async getEventsByFilters(name, category, startDate, tag, limit, offset) {
       try {
           const eventRepository = new EventRepository();
           const events = await eventRepository.getEventsByFilters(name, category, startDate, tag, limit, offset);
 
-          // Formatear la respuesta con la estructura correcta
           const formattedEvents = events.map(event => ({
               id: event.id,
               name: event.name,
@@ -84,21 +73,7 @@ export class EventService {
 
 
 
-  // async getEventById (id) {
-  //   let returnEntity = null;
-  //   console.log("Estoy en: getEventById");
-  //   try {
-  //     const query = {
-  //       text: 'SELECT * FROM events WHERE id = $1',
-  //       values: [id]
-  //     };
-  //     const result = await client.query(query);
-  //     returnEntity = result.rows[0];
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  //   return returnEntity;
-  // }
+
   async getEventById(id) {
     try {
         const eventRepository = new EventRepository();
@@ -108,7 +83,6 @@ export class EventService {
             return null;
         }
 
-        // Formatear la respuesta con la estructura correcta
         const formattedEvent = {
             id: event.id,
             name: event.name,
@@ -177,38 +151,6 @@ export class EventService {
 }
 
 
-  // async getParticipantesEvento(id, first_name, last_name, userName, attended, rating){
-  //   if(attended) {
-  //       return false;
-  //   }
-  //   let queryPrimero = "";
-  //   const array = []
-  //   if(first_name){
-  //     queryPrimero +=  " AND u.first_name = $2";
-  //     array.push(first_name)
-  //   }    
-  //   if(last_name){
-  //     queryPrimero += " AND u.last_name = $3";
-  //     array.push(last_name)
-  //   }  
-  //   if(userName){
-  //     queryPrimero += " AND u.username = $4";
-  //     array.push(userName)
-  //   }
-  //   if(attended){
-  //     queryPrimero += " AND er.attended = $5";
-  //     array.push(attended)
-  //   }    
-  //   if(rating){
-  //     queryPrimero += " AND er.rating >= $6";
-  //     array.push(rating)
-  //   }
-  //   const eventRepository = new EventRepository();
-  //   const resultadoGet = await eventRepository.getParticipantesEvento(id, queryPrimero, array);
-  //   return resultadoGet;
-  // }
-
-  // AHORA CON ESTE DE ACA ABAJO FUNCIONA EL PUNTO 5 CORRECTAMENTE
   async getParticipantesEvento(id, first_name, last_name, username, attended, rating) {
     if (attended) {
         return false;
@@ -359,7 +301,6 @@ export class EventService {
     return obtenerEnrollment;  
   }
 
-// Actualizar la inscripción al evento
 async updateEventEnrollment(id_enrollment, rating, observations) {
   let updateEventEnrollment = null;  
   const query = {

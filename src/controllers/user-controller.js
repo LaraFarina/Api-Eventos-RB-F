@@ -29,7 +29,6 @@ router.post("/login", async (req,res)=>{
     }
 });
 
-// MENSAJE PARA EL PROFE: HOLA, SOY NOAH, TE QUERIA DECIR QUE HAY UN BUG/ERROR CON EL CREAR QUE TENES QUE TOCAR "SEND" 3 VECES PARA QUE TE TOME EL ID=3 (ya que hay ya existentes 2 users anteriores)
 router.post("/register", async (req, res) => {
     const { first_name, last_name, username, password } = req.body;
     const userService = new UserService();

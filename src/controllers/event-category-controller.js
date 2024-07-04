@@ -32,7 +32,6 @@ router.get("/", AuthMiddleware, async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const evento = await eventCatService.getEventsCatById(req.params.id);
-        //Para comprobar si funciona el evento
         if (evento != null) {
             return res.status(200).json(evento);
         } else {
@@ -59,7 +58,6 @@ router.post("/", async (req, res) => {
         }
         
         const evento = await eventCatService.createEventCategory(nameCat, display);
-        //Para comprobar si funciona el evento
          return res.status(200).json("Evento creado con éxito");
     }
     catch(error){

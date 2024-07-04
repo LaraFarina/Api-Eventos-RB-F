@@ -14,7 +14,7 @@ export class EventCatRepository {
         };
         const result = await client.query(query);
         const totalQuery = await client.query('SELECT COUNT(*) FROM event_categories');
-        const total = parseInt(totalQuery.rows[0].count); // El total de eventos
+        const total = parseInt(totalQuery.rows[0].count);  
         return {
             collection: result.rows,
             total: total

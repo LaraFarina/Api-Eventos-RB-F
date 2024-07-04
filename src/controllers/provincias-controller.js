@@ -8,7 +8,6 @@ const pagination = new Pagination();
 
 const provinciaService = new ProvinciasService();
 
-// Obtener una provincia por ID
 router.get('/:id', async (req, res) => {
   try {
     console.log(req.params.id)
@@ -23,7 +22,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Obtener todas las provincias con paginnación
 router.get('/', async (req, res) => {
   const limit = pagination.parseLimit(req.query.limit);
   const offset = pagination.parseOffset(req.query.offset);

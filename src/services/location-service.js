@@ -36,7 +36,6 @@ export class LocationService{
             };
             const result = await client.query(query);
             returnEntity = result.rows[0];
-            // console.log(result);
         } catch (error) {
             console.log(error);
             throw new Error("Error al buscar la ubicación");
@@ -81,7 +80,7 @@ export class LocationService{
           throw error;
         }
       
-        return locations; // Devuelve las localidades encontradas o null si no se encontraron
+        return locations;  
       }
       
       async deleteLocationsByProvinceId(id) {
@@ -99,7 +98,7 @@ export class LocationService{
           throw error;
         }
       
-        return deletedLocationNames; // Devuelve los nombres de las localidades eliminadas o null si no se encontraron
+        return deletedLocationNames;  
       }
 
       async findLocationsPaginated(limit, offset){
@@ -110,7 +109,7 @@ export class LocationService{
             values: [limit, offset]
           };
           const result = await client.query(query);
-          returnEntity = result.rows; //este rows NO tiene que ir con 0, ya que debe tomar todos los valores
+          returnEntity = result.rows; 
           console.log(result);
         } catch (error) {
           console.log(error);

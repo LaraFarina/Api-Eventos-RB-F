@@ -8,7 +8,6 @@ const router = express.Router();
 const locationService = new LocationService();
 const pagination = new Pagination();
 
-// PUNTO 11: Locations
 router.get("/", async (req, res) => {
     const limit = pagination.parseLimit(req.query.limit);
     const offset = pagination.parseOffset(req.query.offset);
@@ -47,14 +46,11 @@ router.get("/:id", async (req, res) => {
 });
 
 router.get("/:id/event-location", AuthMiddleware, async (req, res) => {
-    const id = req.params.id; // location id
+    const id = req.params.id;  
     const user_id = req.user.id;
     
     try {
-        // Verifica si la ubicación existe
         const location = await locationService.getLocationById(id);
-
-        // Si la ubicación existe, busca los eventos asociados a esa ubicación y usuario
         const events = await locationService.getEventsLocationByLocations(id, user_id);
         
         return res.status(200).json(events);
