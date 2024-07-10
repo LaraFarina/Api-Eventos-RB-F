@@ -3,7 +3,6 @@ import { EventService } from "../service/event-service.js";
 import { AuthMiddleware } from "../auth/AuthMiddleware.js";
 import { Pagination } from "../utils/paginacion.js";
 
-
 const router = express.Router();
 const eventService = new EventService();
 const pagination = new Pagination();
@@ -34,11 +33,9 @@ router.get("/", async (req, res) => {
         return res.status(200).json(response);
     } catch (error) {
         console.log("Error al buscar eventos:", error);
-        return res.status(500).json({ error: "Un Error ha ocurrido" });
+        return res.status(500).json({ error: "Se ha producido un problema" });
     }
 });
-
- 
 
 router.get("/:id", async (req, res) => {
     try {
@@ -48,13 +45,10 @@ router.get("/:id", async (req, res) => {
         }
         return res.status(200).json(evento);
     } catch (error) {
-        console.log("No hay evento existente");
-        return res.status(500).json({ error: 'Ha ocurrido un error' });
+        console.log("Error al buscar evento por ID:", error);
+        return res.status(500).json({ error: 'Se ha producido un problema' });
     }
 });
-
-
-
 
 router.get("/:id/enrollment", async (req, res) => {
     const first_name = req.query.first_name;
@@ -62,24 +56,21 @@ router.get("/:id/enrollment", async (req, res) => {
     const username = req.query.username;
     const attended = req.query.attended;
     const rating = req.query.rating;
-    console.log("controller")
+    console.log("controller");
     try {
         const participantesEvento = await eventService.getParticipantesEvento(req.params.id, first_name, last_name, username, attended, rating);
         
-        if(!participantesEvento){
-            return res.status(200).json({ participantesEvento: []});
+        if (!participantesEvento) {
+            return res.status(200).json({ participantesEvento: [] });
         }
         return res.json(participantesEvento);
-    }
-    catch(error){
-        console.log("Error al buscar");
-        return res.json("Un Error");
+    } catch (error) {
+        console.log("Error al buscar participantes del evento:", error);
+        return res.status(500).json({ error: "Se ha producido un problema" });
     }
 });
 
-
-
-router.post("/", AuthMiddleware ,async (req, res) => {
+router.post("/", AuthMiddleware, async (req, res) => {
     const name = req.body.name;
     const description = req.body.description;
     const id_event_category = req.body.id_event_category;
@@ -94,20 +85,19 @@ router.post("/", AuthMiddleware ,async (req, res) => {
     try {
         const evento = await eventService.createEvent(name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
         return res.status(200).json(evento);
-    }
-    catch(error){
-        console.log("Error al crear evento");
-        if(error.message === 'Not Found'){
-            return res.status(404).json({ message: error });
+    } catch (error) {
+        console.log("Error al crear el evento:", error);
+        if (error.message === 'Not Found') {
+            return res.status(404).json({ message: 'No se encontró el recurso' });
         }
-        if(error.message === 'Bad Request'){
-            return res.status(400).json("Bad Request");
+        if (error.message === 'Bad Request') {
+            return res.status(400).json("Solicitud incorrecta");
         }
+        return res.status(500).json({ error: "Se ha producido un problema" });
     }
 });
 
-
-router.put("/:id", AuthMiddleware , async (req, res) => {
+router.put("/:id", AuthMiddleware, async (req, res) => {
     const id = req.params.id;
     const name = req.body.name;
     const description = req.body.description;
@@ -121,16 +111,15 @@ router.put("/:id", AuthMiddleware , async (req, res) => {
     const id_creator_user = req.user.id;
 
     try {
-        console.log(start_date)
+        console.log(start_date);
         const evento = await eventService.updateEvent(id, name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
-        if(evento){
-            return res.status(200).json({ Message: 'Actualizado correctamente' });
+        if (evento) {
+            return res.status(200).json({ message: 'Evento actualizado con éxito' });
         }
-        
-    }
-    catch(error){
-        console.log("Error al editar evento");
-        return res.json("Un Error");
+        return res.status(404).json({ error: 'Evento no encontrado' });
+    } catch (error) {
+        console.log("Error al editar el evento:", error);
+        return res.status(500).json({ error: "Se ha producido un problema" });
     }
 });
 
@@ -150,18 +139,15 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
 
         const rowsAffected = await eventService.deleteEvent(id);
         if (rowsAffected > 0) {
-            return res.status(200).json({ mensaje: 'Se eliminó el evento' });
+            return res.status(200).json({ mensaje: 'Evento eliminado con éxito' });
         } else {
-            return res.status(400).json({ mensaje: 'No se eliminó el evento' });
+            return res.status(400).json({ mensaje: 'No se pudo eliminar el evento' });
         }
     } catch (error) {
-        console.log("Error al eliminar evento:", error);
+        console.log("Error al eliminar el evento:", error);
         return res.status(500).json({ mensaje: 'Error interno al eliminar el evento' });
     }
 });
-
-
-
 
 router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
     const id_user = req.user.id;
@@ -195,22 +181,21 @@ router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.delete("/:id/enrollment", AuthMiddleware ,async (req, res) => {
+router.delete("/:id/enrollment", AuthMiddleware, async (req, res) => {
     const id_user = req.user.id;
     const id_event = req.params.id;
-    try{
+    try {
         const event = await eventService.deleteInscripcionEvento(id_event, id_user);
-        if(!event){
-            return res.status(404).json({ error: 'El id de evento en event enrollment no existe' });
-        } else{
-            return res.json("Se ha desinscripto correctamente al evento");
+        if (!event) {
+            return res.status(404).json({ error: 'El ID del evento en la inscripción no existe' });
+        } else {
+            return res.json("Se ha desinscripto del evento exitosamente");
         }
-    } catch(error){
-        return res.status(400).json({error: "El usuario no se encuentra registrado o se esta intentando borrar algo que es hoy o ya sucedió"})
-        console.log("Error al desinscribir");
+    } catch (error) {
+        console.log("Error al desinscribir del evento:", error);
+        return res.status(400).json({ error: "El usuario no se encuentra registrado o se está intentando borrar una inscripción para un evento que ya sucedió" });
     }
 });
-
 
 router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     const id = req.params.id; 
@@ -219,7 +204,7 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     const userId = req.user.id; 
 
     if (rating < 1 || rating > 10) {
-        return res.status(400).json({ error: 'El rating debe ser un entero entre 1 y 10' });
+        return res.status(400).json({ error: 'La calificación debe ser un entero entre 1 y 10' });
     }
     
     try {
@@ -229,7 +214,7 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
         }
 
         const id_enrollment = eventEnrollment.id;
-        console.log(id_enrollment, "holaa")
+        console.log(id_enrollment, "holaa");
         const start_date = eventEnrollment.start_date;
 
         const hoy = new Date();
@@ -237,7 +222,7 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'El evento aún no ha finalizado' });
         }
         const updatedEnrollment = await eventService.updateEventEnrollment(id_enrollment, rating, observations);
-        console.log(updatedEnrollment)
+        console.log(updatedEnrollment);
         return res.status(200).json(updatedEnrollment);
     } catch (error) {
         if (error.message === 'Usuario no autenticado') {
@@ -248,11 +233,4 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     }
 });
 
-
-
-    
 export default router;
-
-
-
-

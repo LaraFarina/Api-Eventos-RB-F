@@ -1,120 +1,77 @@
 import { query } from "express";
-import {LocationRepository} from "../repositories/location-repository.js";
+import { LocationRepository } from "../repositories/location-repository.js";
 import pg from "pg";
 import { config } from "../repositories/db.js"; 
 import { Pagination } from "../utils/paginacion.js";
+
 const client = new pg.Client(config);
-const pagination = new Pagination();
 client.connect();
 
-export class LocationService{
-    async getAllLocations(url){
-        let returnEntity = null;
-        console.log("Estoy en: getAllLocations");
-        try {
-            const query = {
-                text: 'SELECT * FROM locations',
-            };
-            const result = await client.query(query);
-            console.log(result);
-            const rows = result.rows;
-            returnEntity = rows.length
-        } catch (error) {
-            console.log(error);
-        }
+export class LocationService {
+    constructor() {
+        this.bd = new LocationRepository();
+    }
 
-        return returnEntity;
+    async getAllLocations(offset, limit, url) {
+        try {
+            const [locations, totalCount] = await this.bd.getAllLocations(limit, offset);
+            return Pagination.BuildPagination(locations, limit, offset, url, totalCount);
+        } catch (error) {
+            console.error("Error en getAllLocations:", error);
+            throw new Error("Error al obtener todas las ubicaciones");
+        }
     }
 
     async getLocationById(id) {
-        let returnEntity = null;
-        console.log("Estoy en: getLocationById");
         try {
-            const query = {
-                text: 'SELECT * FROM locations WHERE id = $1',
-                values: [id]
-            };
-            const result = await client.query(query);
-            returnEntity = result.rows[0];
+            const location = await this.bd.getLocationById(id);
+            if (!location) {
+                throw new Error("Location not found");
+            }
+            return location;
         } catch (error) {
-            console.log(error);
-            throw new Error("Error al buscar la ubicación");
+            console.error("Error en getLocationById:", error);
+            throw new Error("Error al obtener la ubicación por ID");
         }
-        if (!returnEntity) {
-            throw new Error("location not found");
-        }
-        return returnEntity;
     }
 
-    async getEventsLocationByLocations(id, user_id) {
-        let returnEntity = null;
+    async getEventLocationsByIdLocation(limit, offset, url, id) {
         try {
-            const query = {
-                text: 'SELECT * FROM event_locations WHERE id = $1 AND id_creator_user = $2',
-                values: [id, user_id]
-            };
-            const result = await client.query(query);
-            returnEntity = result.rows;
+            const [event_locations, totalCount] = await this.bd.getEventLocationsByLocationId(limit, offset, id);
+            return Pagination.BuildPagination(event_locations, limit, offset, url, totalCount);
         } catch (error) {
-            console.log(error);
-            throw new Error("Error al buscar los eventos");
+            console.error("Error en getEventLocationsByIdLocation:", error);
+            throw new Error("Error al obtener los eventos por ID de ubicación");
         }
-        if (returnEntity.length === 0) {
-            throw new Error("events not found");
-        }
-        return returnEntity;
     }
 
     async findLocationsByProvince(id) {
-        let locations = null;
-      
         try {
-          const selectQuery = {
-            text: 'SELECT * FROM locations WHERE id_province = $1',
-            values: [id]
-          };
-          const selectResult = await client.query(selectQuery);
-          locations = selectResult.rows;
+            const locations = await this.bd.findLocationsByProvince(id);
+            return locations;
         } catch (error) {
-          console.error('Error al buscar localidades:', error);
-          throw error;
+            console.error('Error en findLocationsByProvince:', error);
+            throw new Error('Error al buscar localidades por provincia');
         }
-      
-        return locations;  
-      }
-      
-      async deleteLocationsByProvinceId(id) {
-        let deletedLocationNames = null;
-      
-        try {
-          const deleteQuery = {
-            text: 'DELETE FROM locations WHERE id_province = $1 RETURNING name',
-            values: [id]
-          };
-          const result = await client.query(deleteQuery);
-          deletedLocationNames = result.rows.map(row => row.name);
-        } catch (error) {
-          console.error('Error al eliminar localidades:', error);
-          throw error;
-        }
-      
-        return deletedLocationNames;  
-      }
-
-      async findLocationsPaginated(limit, offset){
-        let returnEntity = null;
-        try {
-          const query = {
-            text: 'SELECT * FROM locations LIMIT $1 OFFSET $2',
-            values: [limit, offset]
-          };
-          const result = await client.query(query);
-          returnEntity = result.rows; 
-          console.log(result);
-        } catch (error) {
-          console.log(error);
-        }
-        return returnEntity;
     }
 
+    async deleteLocationsByProvinceId(id) {
+        try {
+            const deletedLocationNames = await this.bd.deleteLocationsByProvinceId(id);
+            return deletedLocationNames;
+        } catch (error) {
+            console.error('Error en deleteLocationsByProvinceId:', error);
+            throw new Error('Error al eliminar localidades por ID de provincia');
+        }
+    }
+
+    async findLocationsPaginated(limit, offset) {
+        try {
+            const locations = await this.bd.findLocationsPaginated(limit, offset);
+            return locations;
+        } catch (error) {
+            console.error('Error en findLocationsPaginated:', error);
+            throw new Error('Error al buscar localidades paginadas');
+        }
+    }
 }

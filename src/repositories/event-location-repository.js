@@ -1,123 +1,109 @@
-import pg from "pg";
-import { config } from "./db.js"; 
-import res from "express/lib/response.js";
-import { EventRepository } from "./event-respository.js";
+import pg from 'pg';
+import { config } from './db.js';
+import { makeUpdate } from '../src/utils/functions.js';
 
-const client = new pg.Client(config);
+const { Client } = pg;
+const client = new Client(config);
 client.connect();
 
-export class EventLocationRepository{
+export class EventLocationRepository {
+    constructor() {
+        this.DBClient = client;
+    }
 
-    async getAllLocationsPaginated(limit, offset) {
+    async getAllEventLocations(userId, limit, offset) {
         try {
-            const query = {
-                text: "SELECT * FROM event_locations LIMIT $1 OFFSET $2",
-                values: [limit, offset]
-            };
-            const result = await client.query(query);
-            return result.rows;
+            const query = `SELECT * FROM event_locations WHERE id_creator_user = $1 LIMIT $2 OFFSET $3`;
+            const result = await this.DBClient.query(query, [userId, limit, offset * limit]);
+
+            const countQuery = `SELECT COUNT(id) AS total FROM event_locations WHERE id_creator_user = $1`;
+            const totalCount = await this.DBClient.query(countQuery, [userId]);
+
+            return [result.rows, parseInt(totalCount.rows[0].total)];
         } catch (error) {
-            console.error("Error en getAllLocationsPaginated:", error);
+            console.error('Error en getAllEventLocations:', error);
             throw error;
         }
     }
 
-    async getLocationsCount() {
+    async getEventLocationById(id, userId) {
         try {
-            const query = "SELECT COUNT(*) FROM event_locations";
-            const result = await client.query(query);
-            return parseInt(result.rows[0].count, 10);
+            const query = `SELECT * FROM event_locations WHERE id = $1 AND id_creator_user = $2`;
+            const result = await this.DBClient.query(query, [id, userId]);
+            return result.rows[0];
         } catch (error) {
-            console.error("Error en getLocationsCount:", error);
+            console.error('Error en getEventLocationById:', error);
             throw error;
         }
     }
 
-
-    async findLocationByID(id){
-        let returnEntity = null;
+    async createEventLocation(eventLocation) {
         try {
-            const query = {
-                text: "SELECT * FROM event_locations WHERE id = $1",
-                values: [id]
-            };
-            const result = await client.query(query);
-            returnEntity = result.rows[0];
-        } catch (error) {
-            console.log(error);
-        }
-        return returnEntity;
-    }    
+            const checkLocationQuery = `SELECT * FROM locations WHERE id = $1`;
+            const existsLocation = await this.DBClient.query(checkLocationQuery, [eventLocation.id_location]);
 
-    async createEventLocation(id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user){
-        let returnEntity = null;
-        if(name === null || full_address === null || name.length < 3 || full_address.length < 3 || max_capacity <= 0){
-            throw new Error('Bad Request')
-        } 
-        try{
-            const query={
-                text:"INSERT INTO event_locations (id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-                values:[id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user]
-            }
-            console.log(id_location);
-            const result = await client.query(query);
-            returnEntity = result.rows[0];
-            console.log("Nuevo Event-Location creado:", returnEntity);
-        } catch(error){
-            console.log(error);
-        }
-        return returnEntity;
-    }
-
-
-
-    async putEventLocation(id, id_location, name, full_address, max_capacity, latitude, longitude, id_user) {
-        console.log("ESTOY EN EVENT-LOCATION-REPOSITORY");
-        
-        if (!name || !full_address || name.length < 3 || full_address.length < 3 || max_capacity <= 0) {
-            throw new Error('Bad Request');
-        }
-
-        try {
-            const query = {
-                text: "UPDATE event_locations SET id_location=$1, name=$2, full_address=$3, max_capacity=$4, latitude=$5, longitude=$6 WHERE id=$7 AND id_creator_user=$8 RETURNING *;",
-                values: [id_location, name, full_address, max_capacity, latitude, longitude, id, id_user]
-            };
-            const result = await client.query(query);
-            if (result.rowCount > 0) {
-                console.log('Evento actualizado:', result.rows[0]);
-                return result.rows[0];
+            if (existsLocation.rowCount > 0) {
+                const insertQuery = `INSERT INTO event_locations (id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
+                const insertValues = [
+                    eventLocation.id_location,
+                    eventLocation.name,
+                    eventLocation.full_address,
+                    eventLocation.max_capacity,
+                    eventLocation.latitude,
+                    eventLocation.longitude,
+                    eventLocation.id_creator_user
+                ];
+                const result = await this.DBClient.query(insertQuery, insertValues);
+                return result.rowCount > 0;
             } else {
-                return null;
+                return false;
             }
         } catch (error) {
-            console.error("Error en putEventLocation:", error);
+            console.error('Error en createEventLocation:', error);
             throw error;
         }
     }
 
-    async deleteEventLocation(id,id_user){
-        let returnEntity = null;
-        
-        try{
-            const query = {
-                text:"DELETE FROM event_locations WHERE id = $1 AND id_creator_user = $2",
-                values:[id,id_user]
+    async updateEventLocation(eventLocation) {
+        try {
+            const checkEventLocationQuery = `SELECT * FROM event_locations WHERE id = $1 AND id_creator_user = $2`;
+            const existsEventLocation = await this.DBClient.query(checkEventLocationQuery, [eventLocation.id, eventLocation.id_creator_user]);
+
+            if (existsEventLocation.rowCount > 0) {
+                const checkLocationQuery = `SELECT * FROM locations WHERE id = $1`;
+                const existsLocation = await this.DBClient.query(checkLocationQuery, [eventLocation.id_location]);
+
+                if (existsLocation.rowCount > 0) {
+                    const [attributes, valuesSet] = makeUpdate(eventLocation, { "id": eventLocation.id, "id_creator_user": eventLocation.id_creator_user });
+
+                    if (attributes.length > 0) {
+                        const updateQuery = `UPDATE event_locations SET ${attributes.join(', ')} WHERE id = $${valuesSet.length + 1} AND id_creator_user = $${valuesSet.length + 2}`;
+                        const updateValues = [...valuesSet, eventLocation.id, eventLocation.id_creator_user];
+                        const result = await this.DBClient.query(updateQuery, updateValues);
+                        return result.rowCount > 0;
+                    } else {
+                        return true; // No changes to update
+                    }
+                } else {
+                    return [400, "El id_location es inexistente"];
+                }
+            } else {
+                return [404, "El id del event_location es inexistente o no pertenece al usuario autenticado."];
             }
-            const result = await client.query(query);
-            returnEntity = result.rowCount;
-            console.log(returnEntity)
-        } catch(error){
-            console.error("Error en deleteEventLocation:", error);
+        } catch (error) {
+            console.error('Error en updateEventLocation:', error);
             throw error;
         }
-        return returnEntity;
     }
 
-
-
-
-
-
-
+    async deleteEventLocation(id, userId) {
+        try {
+            const deleteQuery = `DELETE FROM event_locations WHERE id = $1 AND id_creator_user = $2`;
+            const result = await this.DBClient.query(deleteQuery, [id, userId]);
+            return result.rowCount > 0;
+        } catch (error) {
+            console.error('Error en deleteEventLocation:', error);
+            throw error;
+        }
+    }
 }

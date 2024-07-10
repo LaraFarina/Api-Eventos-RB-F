@@ -1,69 +1,88 @@
-import { query } from "express";
-import {EventCatRepository} from "../repositories/event-category-repository.js";
+import { EventCategoryRepository } from "../../repositories/event_category-repository.js";
+import { Pagination } from "../entities/pagination.js";
+import { verifyLength } from "../utils/functions.js";
 import pg from "pg";
-import { config } from "../repositories/db.js"; 
-import { Pagination } from "../utils/paginacion.js";
+import { config } from "../../repositories/db.js";
+
 const client = new pg.Client(config);
-const eventCatRepository = new EventCatRepository();
-client.connect();
+const eventCategoryRepository = new EventCategoryRepository(client);
 
-
-export class EventCatService {
-    async getAllEventsCat(limit, offset) {
-        console.log("Estoy en event-category-service");
-        try {
-          return await eventCatRepository.getAllEventsCat(limit, offset);
-        } catch (error) {
-          console.error("Error al obtener eventos por filtros", error);
-          throw new Error('Error al obtener eventos por filtros');
-        }
-      }
-  
-
-
-   async getEventsCatById(id){
-                console.log("Estoy en GET event-category-service")
-                try {
-                    const respuesta = await eventCatRepository.getEventsCatById(id);
-                    return respuesta;
-                } catch (error) {
-                    throw new Error('Error al obtener eventos por filtros');
-                }      
+export class EventCategoryService {
+    constructor() {
+        this.eventCategoryRepository = eventCategoryRepository;
     }
 
+    // Métodos del primer código
+    async getAllEvent_Category(limit, offset, url) {
+        const [event_categories, totalCount] = await this.eventCategoryRepository.getAllEvent_Category(limit, offset);
+        return Pagination.BuildPagination(event_categories, limit, offset, url, totalCount);
+    }
 
-    async createEventCategory(nameCat, display_order){
+    async getEvent_CategoryById(id) {
+        return await this.eventCategoryRepository.getEvent_CategoryById(id);
+    }
 
+    async createEventCategory(event_category) {
+        if (!verifyLength(event_category.name)) {
+            throw new Error("El nombre (name) está vacío o tiene menos de tres (3) letras");
+        }
+        return await this.eventCategoryRepository.createEventCategory(event_category);
+    }
+
+    async updateEventCategory(event_category) {
+        if (!verifyLength(event_category.name)) {
+            throw new Error("El nombre (name) está vacío o tiene menos de tres (3) letras");
+        }
+        return await this.eventCategoryRepository.updateEventCategory(event_category);
+    }
+
+    async deleteEventCategory(id) {
+        return await this.eventCategoryRepository.deleteEventCategory(id);
+    }
+
+    // Métodos del segundo código
+    async getAllEventsCat(limit, offset) {
         try {
-            console.log("Estoy en POST event-category-service")
-            const respuesta = await eventCatRepository.createEventCategory(nameCat, display_order);
-            return respuesta;
+            return await eventCategoryRepository.getAllEventsCat(limit, offset);
         } catch (error) {
+            console.error("Error al obtener eventos por filtros", error);
             throw new Error('Error al obtener eventos por filtros');
         }
     }
 
-    async updateEventCategory(id, nameCat, display_order){
-            
-            try {
-                console.log("Estoy en PUT event-category-service")
-                const respuesta = await eventCatRepository.updateEventCategory(id, nameCat, display_order);
-                return respuesta;
-            } catch (error) {
-                throw new Error('Error al obtener eventos por filtros');
-            }
+    async getEventsCatById(id) {
+        try {
+            return await eventCategoryRepository.getEventsCatById(id);
+        } catch (error) {
+            console.error("Error al obtener eventos por filtros", error);
+            throw new Error('Error al obtener eventos por filtros');
+        }
     }
 
-
-    async deleteEventCategory(id){
-            
-            try {
-                console.log("Estoy en DELETE event-category-service")
-                const respuesta = await eventCatRepository.deleteEventCategory(id);
-                return respuesta;
-            } catch (error) {
-                throw new Error('Error al obtener eventos por filtros');
-            }
+    async createEventCategory(nameCat, display_order) {
+        try {
+            return await eventCategoryRepository.createEventCategory(nameCat, display_order);
+        } catch (error) {
+            console.error("Error al crear categoría de evento", error);
+            throw new Error('Error al crear categoría de evento');
+        }
     }
 
+    async updateEventCategory(id, nameCat, display_order) {
+        try {
+            return await eventCategoryRepository.updateEventCategory(id, nameCat, display_order);
+        } catch (error) {
+            console.error("Error al actualizar categoría de evento", error);
+            throw new Error('Error al actualizar categoría de evento');
+        }
+    }
+
+    async deleteEventCategory(id) {
+        try {
+            return await eventCategoryRepository.deleteEventCategory(id);
+        } catch (error) {
+            console.error("Error al eliminar categoría de evento", error);
+            throw new Error('Error al eliminar categoría de evento');
+        }
+    }
 }

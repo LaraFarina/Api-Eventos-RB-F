@@ -1,36 +1,32 @@
-import {ProvinciasService} from "../service/provincias-service.js";
 import express from "express";
+import { ProvinciasService } from "../service/provincias-service.js";
+import { Province } from "../entities/province.js";
+import { AuthMiddleware } from "../auth/AuthMiddleware.js";
 import { Pagination } from "../utils/paginacion.js";
+import { verifyPaginationResources } from "../utils/functions.js";
 
 const router = express.Router();
+const provinciaService = new ProvinciasService();
 const pagination = new Pagination();
 
+router.get("/", async (req, res) => {
+  let limit = req.query.limit;
+  const page = req.query.page;
+  let offset;
+  [limit, offset] = verifyPaginationResources(limit, page);
 
-const provinciaService = new ProvinciasService();
-
-router.get('/:id', async (req, res) => {
-  try {
-    console.log(req.params.id)
-    const provincia = await provinciaService.findProvByID(req.params.id);
-    if (!provincia) {
-      return res.status(404).json({error: 'No se ha encontrado una provincia con ese id'});
-    } else {
-      return res.status(200).json(provincia);
-    }
-  } catch (err) {
-    return res.status(404).json({ message: err.message });
+  if (isNaN(limit)) {
+    return res.status(400).send("El límite proporcionado no es válido");
+  } else if (isNaN(offset)) {
+    return res.status(400).send("El offset proporcionado no es válido");
   }
-});
 
-router.get('/', async (req, res) => {
-  const limit = pagination.parseLimit(req.query.limit);
-  const offset = pagination.parseOffset(req.query.offset);
   const basePath = "api/province";
 
   try {
     const provincias = await provinciaService.findProvPaginated(limit, offset);
-    const total = await provinciaService.getAllProvinces()
-    const paginatedResponse = await pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
+    const total = await provinciaService.getAllProvinces();
+    const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
 
     return res.status(200).json({
       collection: provincias,
@@ -41,16 +37,38 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id/locations', async (req, res) => {
-  const basePath = ("api/province/" + req.params.id + "/locations")
-  const limit = pagination.parseLimit(req.query.limit);
-  const offset = pagination.parseOffset(req.query.offset);
+router.get("/:id", async (req, res) => {
+  try {
+    const provincia = await provinciaService.findProvByID(req.params.id);
+    if (!provincia) {
+      return res.status(404).json({ error: 'No se ha encontrado una provincia con ese ID' });
+    } else {
+      return res.status(200).json(provincia);
+    }
+  } catch (err) {
+    return res.status(404).json({ message: err.message });
+  }
+});
+
+router.get("/:id/locations", async (req, res) => {
+  let limit = req.query.limit;
+  const page = req.query.page;
+  let offset;
+  [limit, offset] = verifyPaginationResources(limit, page);
+
+  if (isNaN(limit)) {
+    return res.status(400).send("El límite proporcionado no es válido");
+  } else if (isNaN(offset)) {
+    return res.status(400).send("El offset proporcionado no es válido");
+  }
+
+  const basePath = "api/province/" + req.params.id + "/locations";
 
   try {
     const locations = await provinciaService.findLocationsByProvincePaginated(req.params.id, limit, offset);
-    const total = await provinciaService.getAllLocations(req.params.id)
-    console.log(total)
+    const total = await provinciaService.getAllLocations(req.params.id);
     const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
+
     return res.status(200).json({
       collection: locations,
       paginacion: paginatedResponse
@@ -58,31 +76,62 @@ router.get('/:id/locations', async (req, res) => {
   } catch (err) {
     return res.status(404).json({ message: err.message });
   }
-
 });
 
+router.post("/", async (req, res) => {
+  const province = new Province(
+    null,
+    req.body.name,
+    req.body.full_name,
+    req.body.latitude,
+    req.body.longitude,
+    req.body.display_order
+  );
 
-router.post('/', async (req, res) => {
-  const name = req.body.name;
-  const full_name = req.body.full_name;
-  const latitude = req.body.latitude;
-  const longitude = req.body.longitude;
-  if(name.length < 3 || isNaN(Number(longitude)) || isNaN(Number(latitude))) {
-    return res.status(400).json({ ERROR: "ESTA MAL XD" });
-  } else{
-    try {
-      const provincia = await provinciaService.insertProvinceNew(name,full_name, latitude, longitude);
-      return res.status(201).json({message: "Provincia insertada correctamente ;)"});
-    } catch (err) {
-      return res.status(400).json({ message: err.message });
-    }
+  const verificacion = province.verifyObject(false);
+  if (verificacion !== true) {
+    return res.status(400).send(verificacion);
   }
 
+  const [provincia, mensaje] = await provinciaService.createProvince(province);
+  if (provincia) {
+    return res.status(201).send();
+  } else {
+    return res.status(400).send(mensaje);
+  }
 });
 
-router.delete('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
+  const province = new Province(
+    req.body.id,
+    req.body.name,
+    req.body.full_name,
+    req.body.latitude,
+    req.body.longitude,
+    req.body.display_order
+  );
+
+  const verificacion = province.verifyObject(true);
+  if (verificacion !== true) {
+    return res.status(400).send(verificacion);
+  }
+
+  if (province.id === undefined) {
+    return res.status(400).send("El ID debe ser ingresado");
+  } else {
+    const [provincia, mensaje] = await provinciaService.updateProvince(province);
+    if (provincia) {
+      return res.status(200).send();
+    } else if (mensaje !== null) {
+      return res.status(400).send(mensaje);
+    } else {
+      return res.status(404).send();
+    }
+  }
+});
+
+router.delete("/:id", async (req, res) => {
   const id = req.params.id;
-  console.log(id);
   try {
     const result = await provinciaService.deleteProvince(id);
     const provincia = result.province;
@@ -102,28 +151,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-
-router.put('/:id', async (req, res) => {
-  const id = req.params.id;
-  const name = req.body.name;
-  const full_name = req.body.full_name;
-  const latitude = req.body.latitude;
-  const longitude = req.body.longitude;
-  console.log(id, name, full_name, latitude, longitude);
-  try {
-    const provincia = await provinciaService.updateProvince(id, name, full_name, latitude, longitude);
-    return res.status(200).json(provincia);
-  } catch (err) {
-    if (err.message === 'Not Found') {
-      return res.status(404).json({ message: err.message });
-    } else {
-      return res.status(500).json({ message: err.message });
-    }
-  }
-});
-
-
-
 export default router;
-
-
