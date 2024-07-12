@@ -175,7 +175,7 @@ export class Provincesservices {
   async createProvince(province) {
     const [verificacion, mensaje] = this.verificarProvince(province);
     if (verificacion) {
-      const resultado = await this.bd.createProvince(province);
+      const resultado = await this.config.createProvince(province);
       return [resultado, null];
     } else {
       return [false, mensaje];
@@ -185,7 +185,7 @@ export class Provincesservices {
   async updateProvince(province) {
     const [verificacion, mensaje] = this.verificarProvince(province);
     if (verificacion) {
-      const resultado = await this.bd.updateProvince(province);
+      const resultado = await this.config.updateProvince(province);
       if (resultado > 0) {
         return [true, null];
       } else {
@@ -207,17 +207,17 @@ export class Provincesservices {
   }
 
   async getAllProvinces(limit, offset, url) {
-    const [provinces, totalCount] = await this.bd.getAllProvinces(limit, offset);
+    const [provinces, totalCount] = await this.config.getAllProvinces(limit, offset);
     return Pagination.BuildPagination(provinces, limit, offset, url, totalCount);
   }
 
   async getProvinceById(id) {
-    const resultado = await this.bd.getProvinceById(id);
+    const resultado = await this.config.getProvinceById(id);
     return resultado;
   }
 
   async getLocationsByProvinceId(limit, offset, url, id) {
-    const [locations, totalCount] = await this.bd.getLocationsByProvince(limit, offset, id);
+    const [locations, totalCount] = await this.config.getLocationsByProvince(limit, offset, id);
     if (locations === null) {
       return null;
     }

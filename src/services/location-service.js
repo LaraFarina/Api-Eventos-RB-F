@@ -9,12 +9,12 @@ client.connect();
 
 export class Locationservices {
     constructor() {
-        this.bd = new LocationRepository();
+        this.config = new LocationRepository();
     }
 
     async getAllLocations(offset, limit, url) {
         try {
-            const [locations, totalCount] = await this.bd.getAllLocations(limit, offset);
+            const [locations, totalCount] = await this.config.getAllLocations(limit, offset);
             return Pagination.BuildPagination(locations, limit, offset, url, totalCount);
         } catch (error) {
             console.error("Error en getAllLocations:", error);
@@ -24,7 +24,7 @@ export class Locationservices {
 
     async getLocationById(id) {
         try {
-            const location = await this.bd.getLocationById(id);
+            const location = await this.config.getLocationById(id);
             if (!location) {
                 throw new Error("Location not found");
             }
@@ -37,7 +37,7 @@ export class Locationservices {
 
     async getEventLocationsByIdLocation(limit, offset, url, id) {
         try {
-            const [event_locations, totalCount] = await this.bd.getEventLocationsByLocationId(limit, offset, id);
+            const [event_locations, totalCount] = await this.config.getEventLocationsByLocationId(limit, offset, id);
             return Pagination.BuildPagination(event_locations, limit, offset, url, totalCount);
         } catch (error) {
             console.error("Error en getEventLocationsByIdLocation:", error);
@@ -47,7 +47,7 @@ export class Locationservices {
 
     async findLocationsByProvince(id) {
         try {
-            const locations = await this.bd.findLocationsByProvince(id);
+            const locations = await this.config.findLocationsByProvince(id);
             return locations;
         } catch (error) {
             console.error('Error en findLocationsByProvince:', error);
@@ -57,7 +57,7 @@ export class Locationservices {
 
     async deleteLocationsByProvinceId(id) {
         try {
-            const deletedLocationNames = await this.bd.deleteLocationsByProvinceId(id);
+            const deletedLocationNames = await this.config.deleteLocationsByProvinceId(id);
             return deletedLocationNames;
         } catch (error) {
             console.error('Error en deleteLocationsByProvinceId:', error);
@@ -67,7 +67,7 @@ export class Locationservices {
 
     async findLocationsPaginated(limit, offset) {
         try {
-            const locations = await this.bd.findLocationsPaginated(limit, offset);
+            const locations = await this.config.findLocationsPaginated(limit, offset);
             return locations;
         } catch (error) {
             console.error('Error en findLocationsPaginated:', error);

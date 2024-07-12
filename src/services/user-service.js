@@ -8,26 +8,26 @@ client.connect();
 
 export class Userservices {
     constructor() {
-        this.bd = new UserRepository();
+        this.config = new UserRepository();
     }
 
     async verificacionUsuario(username, password) {
-        const resultadoV = await this.bd.verificacionUsuario(username, password);
+        const resultadoV = await this.config.verificacionUsuario(username, password);
         return resultadoV;
     }
 
     async crearUsuario(first_name, last_name, username, password) {
-        const resultadoC = await this.bd.crearUsuarioRep(first_name, last_name, username, password);
+        const resultadoC = await this.config.crearUsuarioRep(first_name, last_name, username, password);
         return resultadoC;
     }
 
     async ValidarUsuario(username, password) {
-        const [success, token, statusCode, mensaje] = await this.bd.getUser(username, password);
+        const [success, token, statusCode, mensaje] = await this.config.getUser(username, password);
         return [success, token, statusCode, mensaje];
     }
 
     async ValidarRegistro(user) {
-        const resultado = await this.bd.validateUsername(user);
+        const resultado = await this.config.validateUsername(user);
         return resultado;
     }
 }
