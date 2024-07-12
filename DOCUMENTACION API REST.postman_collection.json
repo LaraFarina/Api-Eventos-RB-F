@@ -1,0 +1,996 @@
+{
+	"info": {
+		"_postman_id": "55ad2548-dac3-478a-8021-a3b1d29a6769",
+		"name": "DOCUMENTACION API REST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36755518"
+	},
+	"item": [
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "Enrollment",
+					"item": [
+						{
+							"name": "Create event enrollment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3508/api/event/4/enrollment",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3508",
+									"path": [
+										"api",
+										"event",
+										"4",
+										"enrollment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete event enrollment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3508/api/event/1/enrollment",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3508",
+									"path": [
+										"api",
+										"event",
+										"1",
+										"enrollment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Rating Event Enrollment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNjI5MDAsImV4cCI6MTcxODM2NjUwMCwiaXNzIjoibG9jYWxob3N0In0.N0mlC0JXSomseDd9sv6jm3A0Q2lAd_wI3K15FLS65Ss",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"observations\": \"muy bueno\"    \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3508/api/event/3/enrollment/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3508",									"path": [
+										"api",
+										"event",
+										"3",
+										"enrollment",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get all event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all event by a key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event/?name=Taylor Swift",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Taylor Swift"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get event by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get listado participantes evento",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTc3NTk5NjcsImV4cCI6MTcxNzc2MzU2NywiaXNzIjoibG9jYWxob3N0In0.1OngH8WALXsCzZMUJLN98zOcRSHCk44nOAfba9t5hm0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event/2/enrollment?first_name=Julian",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								"2",
+								"enrollment"
+							],
+							"query": [
+								{
+									"key": "first_name",
+									"value": "Julian"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"ColdPlay\",\r\n    \"description\": \"Un concierto muy PLAY\",\r\n    \"id_event_category\": 1,\r\n    \"id_event_location\": 1,\r\n    \"start_date\": \"2022/12/03 t 00:00:00\" ,\r\n    \"duration_in_minutes\": 210,\r\n    \"price\": 20000,\r\n    \"enabled_for_enrollment\": true,\r\n    \"max_assistance\": 90000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTc3NjY5ODAsImV4cCI6MTcxNzc3MDU4MCwiaXNzIjoibG9jYWxob3N0In0.9ogf8Wh66VfBvgDw3f2l-hA2YYhZA6DJIWQ6ev_a5rU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Harry Styles 2344\",\r\n    \"description\": \"Un concierto muy STYLES\",\r\n    \"id_event_category\": 1,\r\n    \"id_event_location\": 1,\r\n    \"start_date\": \"2022/12/03 t 00:00:00\" ,\r\n    \"duration_in_minutes\": 210,\r\n    \"price\": 17500,\r\n    \"enabled_for_enrollment\": true,\r\n    \"max_assistance\": 90000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Post Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": \"Julian\",\r\n    \"last_name\": \"Schiffer\",\r\n    \"username\": \"schifferjulian@gmail.com\",\r\n    \"password\": \"julian\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": \"Noah\",\r\n    \"last_name\": \"Rotbard\",\r\n    \"username\": \"noahdemianrr@gmail.com\",\r\n    \"password\": \"noah\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/user/register/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"user",
+								"register",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Province",
+			"item": [
+				{
+					"name": "Get By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/province/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get ALL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/province/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Locations by province",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/province/2/locations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								"2",
+								"locations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create province",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"name\": \"Sokovia\", \r\n   \"full_name\": \"The land of Sokovia\",\r\n   \"latitude\": -100.61444091496875,\r\n   \"longitude\": -500.445877075195312\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/province/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete province",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/province/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Province",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"name\": \"Sokovia\", \r\n   \"full_name\": \"The land of Sokovia\",\r\n   \"latitude\": -100.61444091496875,\r\n   \"longitude\": -500.445877075195312\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/province/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"province",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "GET ALL Locations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MjAxMjg2MzEsImV4cCI6MTcyMDEzMjIzMSwiaXNzIjoibG9jYWxob3N0In0.vN0Og275emw49dEexAtcsXHLqpiMbLJBS-3XFZOsbrI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/location/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"location",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Locations by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNjI5MDAsImV4cCI6MTcxODM2NjUwMCwiaXNzIjoibG9jYWxob3N0In0.N0mlC0JXSomseDd9sv6jm3A0Q2lAd_wI3K15FLS65Ss",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/location/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"location",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET ALL Event-Locations BY LOCATION ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/location/1/event-location",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"location",
+								"1",
+								"event-location"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNjI5MDAsImV4cCI6MTcxODM2NjUwMCwiaXNzIjoibG9jYWxob3N0In0.N0mlC0JXSomseDd9sv6jm3A0Q2lAd_wI3K15FLS65Ss",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Event Category",
+			"item": [
+				{
+					"name": "GET Event-Category by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-category/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Event-Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNjc5MTYsImV4cCI6MTcxODM3MTUxNiwiaXNzIjoibG9jYWxob3N0In0.xL-nIxcCFxVnbGjhr3h3xY3f6c7W6NR8VBwt_v2Ke88",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"nameCat\": \"Anime\", \r\n   \"display_order\": 40\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event-category/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-category",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET ALL Event Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzQxNzEsImV4cCI6MTcxODM3Nzc3MSwiaXNzIjoibG9jYWxob3N0In0.GhFx2XYOPy6VFgAsR_GPtow1R_-J4qhkOQgolaz8SsY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-category/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-category",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Event-Category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"id\": 1,\r\n   \"nameCat\": \"Anime\", \r\n   \"display_order\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event-category/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-category",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Event-Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-category/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event Location",
+			"item": [
+				{
+					"name": "GET Event Location by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNjc5MTYsImV4cCI6MTcxODM3MTUxNiwiaXNzIjoibG9jYWxob3N0In0.xL-nIxcCFxVnbGjhr3h3xY3f6c7W6NR8VBwt_v2Ke88",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-location/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-location",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST EVENT LOCATION",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzE4NDAsImV4cCI6MTcxODM3NTQ0MCwiaXNzIjoibG9jYWxob3N0In0.aBWtd_3RVCahpGsBDXHkzSgiTizuZoCZdA64JmE87D0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_location\": 1 ,\r\n    \"name\": \"UADE\",\r\n    \"full_address\": \"Lima 757, C1073 Cdad. Autónoma de Buenos Aires\",\r\n    \"max_capacity\": 50000 ,\r\n    \"latitude\": -34.616696,\r\n    \"longitude\": -58.4498\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event-location/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-location",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT EVENT LOCATION",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzE4NDAsImV4cCI6MTcxODM3NTQ0MCwiaXNzIjoibG9jYWxob3N0In0.aBWtd_3RVCahpGsBDXHkzSgiTizuZoCZdA64JmE87D0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"id_location\": 1 ,\r\n    \"name\": \"WADE\",\r\n    \"full_address\": \"Lima 757, C1073 Cdad. Autónoma de Buenos Aires\",\r\n    \"max_capacity\": 50000 ,\r\n    \"latitude\": -34.616696,\r\n    \"longitude\": -58.4498\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3508/api/event-location/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-location",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE EVENT LOCATION",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzE4NDAsImV4cCI6MTcxODM3NTQ0MCwiaXNzIjoibG9jYWxob3N0In0.aBWtd_3RVCahpGsBDXHkzSgiTizuZoCZdA64JmE87D0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-location/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-location",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET ALL EVENT LOCATION",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJzY2hpZmZlcmp1bGlhbkBnbWFpbC5jb20iLCJpYXQiOjE3MTgzNzE4NDAsImV4cCI6MTcxODM3NTQ0MCwiaXNzIjoibG9jYWxob3N0In0.aBWtd_3RVCahpGsBDXHkzSgiTizuZoCZdA64JmE87D0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3508/api/event-location/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3508",							"path": [
+								"api",
+								"event-location",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
