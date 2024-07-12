@@ -1,10 +1,8 @@
 import express from "express";
-import { UserService } from "../service/user-service.js";
-import { User } from "../entities/user.js";
-import { verifyLength } from "../utils/functions.js";
+import { Userservices } from "../services/user-service.js";
 
 const router = express.Router();
-const userService = new UserService();
+const userservices = new Userservices();
 
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
@@ -17,7 +15,7 @@ router.post("/login", async (req, res) => {
         });
     } else {
         if (username && password) {
-            const [success, token, statusCode, mensaje] = await userService.ValidarUsuario(username, password);
+            const [success, token, statusCode, mensaje] = await userservices.ValidarUsuario(username, password);
             return res.status(statusCode).send({
                 success: success,
                 message: mensaje,
@@ -51,7 +49,7 @@ router.post("/register", async (req, res) => {
     if (mensaje !== null) {
         return res.status(400).send(mensaje);
     } else {
-        const respuesta = await userService.ValidarRegistro(user);
+        const respuesta = await userservices.ValidarRegistro(user);
         if (respuesta === true) {
             return res.status(201).send({
                 id: user.id,

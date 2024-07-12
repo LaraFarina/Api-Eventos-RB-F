@@ -1,12 +1,12 @@
 import pg from "pg";
 import { config } from "../repositories/db.js";
 import { EventRepository } from "../repositories/event-repository.js";
-import { Pagination } from "../utils/pagination.js";
+import { Pagination } from "../helpers/paginacion.js";
 
 const client = new pg.Client(config);
 client.connect();
 
-export class EventService {
+export class Eventservices {
 
     constructor() {
         this.eventRepository = new EventRepository();
@@ -18,7 +18,7 @@ export class EventService {
             const formattedEvents = events.map(event => this.formatEvent(event));
             return formattedEvents;
         } catch (error) {
-            console.error("Error en getEventsByFilters de EventService:", error);
+            console.error("Error en getEventsByFilters de Eventservices:", error);
             throw new Error('Error al obtener eventos por filtros');
         }
     }
@@ -32,7 +32,7 @@ export class EventService {
             const formattedEvent = this.formatEvent(event);
             return formattedEvent;
         } catch (error) {
-            console.error("Error en getEventById de EventService:", error);
+            console.error("Error en getEventById de Eventservices:", error);
             throw new Error('Error al obtener el evento por ID');
         }
     }
@@ -42,7 +42,7 @@ export class EventService {
             const events = await this.eventRepository.getAllEventsUnconfirmedName(name, category, startDate, tag);
             return events;
         } catch (error) {
-            console.error("Error en getAllEventsUnconfirmedName de EventService:", error);
+            console.error("Error en getAllEventsUnconfirmedName de Eventservices:", error);
             throw new Error('Error al obtener eventos no confirmados por filtros');
         }
     }

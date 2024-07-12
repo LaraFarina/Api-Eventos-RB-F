@@ -1,12 +1,12 @@
 import { query } from "express";
 import pg from "pg";
 import { config } from "../repositories/db.js"; 
-import { UserRepository } from "../../repositories/users-repository.js";
+import { UserRepository } from "../../repositories/user-repository.js";
 
 const client = new pg.Client(config);
 client.connect();
 
-export class UserService {
+export class Userservices {
     constructor() {
         this.bd = new UserRepository();
     }

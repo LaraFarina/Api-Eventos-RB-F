@@ -1,20 +1,20 @@
 import express, { Router, json, query } from "express";
-import { EventLocationService } from "../service/event-location-service.js";
-import { AuthMiddleware } from "../auth/AuthMiddleware.js";
-import { Pagination } from "../utils/paginacion.js";
+import { EventLocationservices } from "../services/event-location-service.js";
+import { authmiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../helpers/paginacion.js";
 
 const router = express.Router();
-const eventLocationService = new EventLocationService();
+const eventLocationservices = new EventLocationservices();
 const pagination = new Pagination();
 
-router.get("/", AuthMiddleware, async (req, res) => {
+router.get("/", authmiddleware, async (req, res) => {
     const limit = pagination.parseLimit(req.query.limit);
     const offset = pagination.parseOffset(req.query.offset);
     const basePath = "api/event-location";
 
     try {
-        const locations = await eventLocationService.getAllLocationsPaginated(limit, offset);
-        const total = await eventLocationService.getLocationsCount();
+        const locations = await eventLocationservices.getAllLocationsPaginated(limit, offset);
+        const total = await eventLocationservices.getLocationsCount();
 
         if (total != null) {
             const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
@@ -31,9 +31,9 @@ router.get("/", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.get("/:id", AuthMiddleware, async (req, res) => {
+router.get("/:id", authmiddleware, async (req, res) => {
     try {
-        const location = await eventLocationService.findLocationByID(req.params.id);
+        const location = await eventLocationservices.findLocationByID(req.params.id);
         if (location) {
             console.log("Localización encontrada:", location);
             return res.status(200).json(location);
@@ -46,12 +46,12 @@ router.get("/:id", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.post("/", AuthMiddleware, async (req, res) => {
+router.post("/", authmiddleware, async (req, res) => {
     const { id_location, name, full_address, max_capacity, latitude, longitude } = req.body;
     const id_creator_user = req.user.id;
 
     try {
-        const location = await eventLocationService.createEventLocation(id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user);
+        const location = await eventLocationservices.createEventLocation(id_location, name, full_address, max_capacity, latitude, longitude, id_creator_user);
         console.log("Localización creada:", location);
         return res.status(200).json("Localización creada con éxito");
     } catch (error) {
@@ -63,12 +63,12 @@ router.post("/", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.put("/", AuthMiddleware, async (req, res) => {
+router.put("/", authmiddleware, async (req, res) => {
     const { id, id_location, name, full_address, max_capacity, latitude, longitude } = req.body;
     const id_user = req.user.id;
 
     try {
-        const location = await eventLocationService.putEventLocation(id, id_location, name.trim(), full_address.trim(), max_capacity, latitude, longitude, id_user);
+        const location = await eventLocationservices.putEventLocation(id, id_location, name.trim(), full_address.trim(), max_capacity, latitude, longitude, id_user);
         if (location) {
             console.log("Localización actualizada:", location);
             return res.status(200).json(location);
@@ -84,12 +84,12 @@ router.put("/", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.delete("/:id", AuthMiddleware, async (req, res) => {
+router.delete("/:id", authmiddleware, async (req, res) => {
     const id = req.params.id;
     const id_user = req.user.id;
 
     try {
-        const location = await eventLocationService.deleteEventLocation(id, id_user);
+        const location = await eventLocationservices.deleteEventLocation(id, id_user);
         if (location) {
             console.log("Localización eliminada:", location);
             return res.status(200).json({ message: 'Localización eliminada correctamente' });

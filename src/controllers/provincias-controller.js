@@ -1,12 +1,10 @@
 import express from "express";
-import { ProvinciasService } from "../service/provincias-service.js";
-import { Province } from "../entities/province.js";
-import { AuthMiddleware } from "../auth/AuthMiddleware.js";
-import { Pagination } from "../utils/paginacion.js";
-import { verifyPaginationResources } from "../utils/functions.js";
+import { Provinciasservices } from "../services/provincias-service.js";
+import { authmiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../helpers/paginacion.js";
 
 const router = express.Router();
-const provinciaService = new ProvinciasService();
+const provinciaservices = new Provinciasservices();
 const pagination = new Pagination();
 
 router.get("/", async (req, res) => {
@@ -24,8 +22,8 @@ router.get("/", async (req, res) => {
   const basePath = "api/province";
 
   try {
-    const provincias = await provinciaService.findProvPaginated(limit, offset);
-    const total = await provinciaService.getAllProvinces();
+    const provincias = await provinciaservices.findProvPaginated(limit, offset);
+    const total = await provinciaservices.getAllProvinces();
     const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
 
     return res.status(200).json({
@@ -39,7 +37,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const provincia = await provinciaService.findProvByID(req.params.id);
+    const provincia = await provinciaservices.findProvByID(req.params.id);
     if (!provincia) {
       return res.status(404).json({ error: 'No se ha encontrado una provincia con ese ID' });
     } else {
@@ -65,8 +63,8 @@ router.get("/:id/locations", async (req, res) => {
   const basePath = "api/province/" + req.params.id + "/locations";
 
   try {
-    const locations = await provinciaService.findLocationsByProvincePaginated(req.params.id, limit, offset);
-    const total = await provinciaService.getAllLocations(req.params.id);
+    const locations = await provinciaservices.findLocationsByProvincePaginated(req.params.id, limit, offset);
+    const total = await provinciaservices.getAllLocations(req.params.id);
     const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
 
     return res.status(200).json({
@@ -93,7 +91,7 @@ router.post("/", async (req, res) => {
     return res.status(400).send(verificacion);
   }
 
-  const [provincia, mensaje] = await provinciaService.createProvince(province);
+  const [provincia, mensaje] = await provinciaservices.createProvince(province);
   if (provincia) {
     return res.status(201).send();
   } else {
@@ -119,7 +117,7 @@ router.put("/:id", async (req, res) => {
   if (province.id === undefined) {
     return res.status(400).send("El ID debe ser ingresado");
   } else {
-    const [provincia, mensaje] = await provinciaService.updateProvince(province);
+    const [provincia, mensaje] = await provinciaservices.updateProvince(province);
     if (provincia) {
       return res.status(200).send();
     } else if (mensaje !== null) {
@@ -133,7 +131,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const result = await provinciaService.deleteProvince(id);
+    const result = await provinciaservices.deleteProvince(id);
     const provincia = result.province;
     const localidades = result.deletedLocationNames;
 

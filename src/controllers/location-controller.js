@@ -1,12 +1,12 @@
 import express, { Router, json, query } from "express";
-import { EventService } from "../service/event-service.js";
-import { LocationService } from "../service/location-service.js";
-import { AuthMiddleware } from "../auth/AuthMiddleware.js";
-import { Pagination } from "../utils/paginacion.js";
-import { verifyPaginationResources } from "../utils/functions.js";
+import { Eventservices } from "../services/event-service.js";
+import { Locationservices } from "../services/location-service.js";
+import { authmiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../helpers/paginacion.js";
+import { verifyPaginationResources } from "../helpers/functions.js";
 
 const router = express.Router();
-const locationService = new LocationService();
+const locationservices = new Locationservices();
 const pagination = new Pagination();
 
 router.get("/", async (req, res) => {
@@ -24,8 +24,8 @@ router.get("/", async (req, res) => {
     const basePath = "api/location";
 
     try { 
-        const locations = await locationService.findLocationsPaginated(limit, offset);
-        const total = await locationService.getAllLocations();
+        const locations = await locationservices.findLocationsPaginated(limit, offset);
+        const total = await locationservices.getAllLocations();
         const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
 
         return res.status(200).json({
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
-        const location = await locationService.getLocationById(req.params.id);
+        const location = await locationservices.getLocationById(req.params.id);
         if (location) {
             return res.status(200).json(location);
         } else {
@@ -52,7 +52,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.get("/:id/event-location", AuthMiddleware, async (req, res) => {
+router.get("/:id/event-location", authmiddleware, async (req, res) => {
     let limit = req.query.limit;
     const page = req.query.page;
     let offset; 
@@ -65,7 +65,7 @@ router.get("/:id/event-location", AuthMiddleware, async (req, res) => {
     }
 
     try {
-        const eventLocations = await locationService.getEventLocationsByIdLocation(limit, offset, req.originalUrl, req.params.id);
+        const eventLocations = await locationservices.getEventLocationsByIdLocation(limit, offset, req.originalUrl, req.params.id);
         if (eventLocations !== false) {
             return res.status(200).json(eventLocations);
         } else {

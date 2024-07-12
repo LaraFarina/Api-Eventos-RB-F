@@ -1,6 +1,6 @@
 import { desencryptToken } from "./jwt.js";
 
-export function AuthMiddleware(req, res, next) {
+export function authmiddleware(req, res, next) {
     if(!req.headers.authorization){
         return res.status(401).send("Unauthorized");
     } else{

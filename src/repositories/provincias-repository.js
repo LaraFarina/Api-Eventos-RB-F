@@ -1,7 +1,5 @@
 import pg from 'pg';
-import { config } from './db.js'; // Asumiendo que config es el objeto de configuración correcto
-import { DBConfig } from './dbconfig.js';
-import { makeUpdate } from '../src/utils/functions.js'; // Asumiendo la ruta correcta a makeUpdate
+import { config } from "../repositories/db";
 
 const { Client } = pg;
 const client = new Client(config);

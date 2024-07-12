@@ -1,10 +1,10 @@
 import express, { Router, json, query } from "express";
-import { EventService } from "../service/event-service.js";
-import { AuthMiddleware } from "../auth/AuthMiddleware.js";
-import { Pagination } from "../utils/paginacion.js";
+import { Eventservices } from "../services/event-services.js";
+import { authmiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../helpers/paginacion.js";
 
 const router = express.Router();
-const eventService = new EventService();
+const eventservices = new Eventservices();
 const pagination = new Pagination();
 
 router.get("/", async (req, res) => {
@@ -21,8 +21,8 @@ router.get("/", async (req, res) => {
     }
 
     try {
-        const events = await eventService.getEventsByFilters(name, category, startDate, tag, limit, offset);
-        const total = await eventService.getAllEventsUnconfirmedName(name, category, startDate, tag);
+        const events = await eventservices.getEventsByFilters(name, category, startDate, tag, limit, offset);
+        const total = await eventservices.getAllEventsUnconfirmedName(name, category, startDate, tag);
         const paginatedResponse = pagination.buildPaginationDto(limit, offset, total, req.path, basePath);
 
         const response = {
@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
-        const evento = await eventService.getEventById(req.params.id);
+        const evento = await eventservices.getEventById(req.params.id);
         if (!evento) {
             return res.status(404).json({ error: 'Evento no encontrado' });
         }
@@ -58,7 +58,7 @@ router.get("/:id/enrollment", async (req, res) => {
     const rating = req.query.rating;
     console.log("controller");
     try {
-        const participantesEvento = await eventService.getParticipantesEvento(req.params.id, first_name, last_name, username, attended, rating);
+        const participantesEvento = await eventservices.getParticipantesEvento(req.params.id, first_name, last_name, username, attended, rating);
         
         if (!participantesEvento) {
             return res.status(200).json({ participantesEvento: [] });
@@ -70,7 +70,7 @@ router.get("/:id/enrollment", async (req, res) => {
     }
 });
 
-router.post("/", AuthMiddleware, async (req, res) => {
+router.post("/", authmiddleware, async (req, res) => {
     const name = req.body.name;
     const description = req.body.description;
     const id_event_category = req.body.id_event_category;
@@ -83,7 +83,7 @@ router.post("/", AuthMiddleware, async (req, res) => {
     const id_creator_user = req.user.id;
 
     try {
-        const evento = await eventService.createEvent(name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
+        const evento = await eventservices.createEvent(name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
         return res.status(200).json(evento);
     } catch (error) {
         console.log("Error al crear el evento:", error);
@@ -97,7 +97,7 @@ router.post("/", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.put("/:id", AuthMiddleware, async (req, res) => {
+router.put("/:id", authmiddleware, async (req, res) => {
     const id = req.params.id;
     const name = req.body.name;
     const description = req.body.description;
@@ -112,7 +112,7 @@ router.put("/:id", AuthMiddleware, async (req, res) => {
 
     try {
         console.log(start_date);
-        const evento = await eventService.updateEvent(id, name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
+        const evento = await eventservices.updateEvent(id, name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user);
         if (evento) {
             return res.status(200).json({ message: 'Evento actualizado con éxito' });
         }
@@ -123,12 +123,12 @@ router.put("/:id", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.delete("/:id", AuthMiddleware, async (req, res) => {
+router.delete("/:id", authmiddleware, async (req, res) => {
     const id = req.params.id;
     const userId = req.user.id;
 
     try {
-        const event = await eventService.getEventById(id);
+        const event = await eventservices.getEventById(id);
         if (!event) {
             return res.status(404).json({ mensaje: 'Evento no encontrado' });
         }
@@ -137,7 +137,7 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
             return res.status(403).json({ mensaje: 'No tienes permisos para eliminar este evento' });
         }
 
-        const rowsAffected = await eventService.deleteEvent(id);
+        const rowsAffected = await eventservices.deleteEvent(id);
         if (rowsAffected > 0) {
             return res.status(200).json({ mensaje: 'Evento eliminado con éxito' });
         } else {
@@ -149,12 +149,12 @@ router.delete("/:id", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
+router.post("/:id/enrollment", authmiddleware, async (req, res) => {
     const id_user = req.user.id;
     const id_event = req.params.id;
 
     try {
-        const event = await eventService.getEventById(id_event);
+        const event = await eventservices.getEventById(id_event);
         if (!event) {
             return res.status(404).json({ error: 'Evento no encontrado' });
         }
@@ -164,12 +164,12 @@ router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
         if (event.current_attendance >= event.max_assistance) {
             return res.status(400).json({ error: 'El evento ha alcanzado la capacidad máxima' });
         }
-        const isEnrolled = await eventService.isUserEnrolled(id_user, id_event);
+        const isEnrolled = await eventservices.isUserEnrolled(id_user, id_event);
         if (isEnrolled) {
             return res.status(400).json({ error: 'El usuario ya está inscrito en el evento' });
         }
 
-        await eventService.postInscripcionEvento(id_user, id_event);
+        await eventservices.postInscripcionEvento(id_user, id_event);
         return res.status(201).json({ message: 'Usuario inscrito exitosamente' });
 
     } catch (error) {
@@ -181,11 +181,11 @@ router.post("/:id/enrollment", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.delete("/:id/enrollment", AuthMiddleware, async (req, res) => {
+router.delete("/:id/enrollment", authmiddleware, async (req, res) => {
     const id_user = req.user.id;
     const id_event = req.params.id;
     try {
-        const event = await eventService.deleteInscripcionEvento(id_event, id_user);
+        const event = await eventservices.deleteInscripcionEvento(id_event, id_user);
         if (!event) {
             return res.status(404).json({ error: 'El ID del evento en la inscripción no existe' });
         } else {
@@ -197,7 +197,7 @@ router.delete("/:id/enrollment", AuthMiddleware, async (req, res) => {
     }
 });
 
-router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
+router.patch("/:id/enrollment/:entero", authmiddleware, async (req, res) => {
     const id = req.params.id; 
     const rating = req.params.entero; 
     const observations = req.body.observations;
@@ -208,7 +208,7 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
     }
     
     try {
-        const eventEnrollment = await eventService.getEventEnrollment(id, userId);
+        const eventEnrollment = await eventservices.getEventEnrollment(id, userId);
         if (!eventEnrollment) {
             return res.status(404).json({ error: 'Inscripción no encontrada' });
         }
@@ -221,7 +221,7 @@ router.patch("/:id/enrollment/:entero", AuthMiddleware, async (req, res) => {
         if (new Date(start_date) > hoy) {
             return res.status(400).json({ error: 'El evento aún no ha finalizado' });
         }
-        const updatedEnrollment = await eventService.updateEventEnrollment(id_enrollment, rating, observations);
+        const updatedEnrollment = await eventservices.updateEventEnrollment(id_enrollment, rating, observations);
         console.log(updatedEnrollment);
         return res.status(200).json(updatedEnrollment);
     } catch (error) {

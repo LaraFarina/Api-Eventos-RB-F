@@ -1,18 +1,18 @@
 import { Router, json, query } from "express";
-import { EventCatService } from "../service/event-category-service.js"; 
-import { AuthMiddleware } from "../auth/AuthMiddleware.js";
-import { Pagination } from "../utils/paginacion.js";
+import { EventCategoryservices } from "../servicess/event-category-services.js"; 
+import { authmiddleware } from "../auth/authmiddleware.js";
+import { Pagination } from "../helpers/paginacion.js";
 import e from "express";
 
 const router = e.Router();
-const eventCatService = new EventCatService();
+const EventCategoryservices = new EventCategoryservices();
 const pagination = new Pagination();
 
-router.get("/", AuthMiddleware, async (req, res) => {
+router.get("/", authmiddleware, async (req, res) => {
     const { limit, offset } = { limit: pagination.parseLimit(req.query.limit), offset: pagination.parseOffset(req.query.offset) };
     const basePath = "api/event-category";
     try {
-        const eventos = await eventCatService.getAllEventsCat(limit, offset);
+        const eventos = await EventCategoryservices.getAllEventsCat(limit, offset);
         const paginatedResponse = pagination.buildPaginationDto(limit, offset, eventos.total, req.path, basePath);
         res.status(200).json({ collection: eventos.collection, paginacion: paginatedResponse });
     } catch (error) {
@@ -23,7 +23,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
-        const evento = await eventCatService.getEventsCatById(req.params.id);
+        const evento = await EventCategoryservices.getEventsCatById(req.params.id);
         if (evento) {
             res.status(200).json(evento);
         } else {
@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
         return;
     }
     try {
-        await eventCatService.createEventCategory(trimmedNameCat, display_order);
+        await EventCategoryservices.createEventCategory(trimmedNameCat, display_order);
         res.status(200).json("Categoría de evento creada con éxito");
     } catch (error) {
         console.log("Se ha producido un error al crear la categoría de evento", error);
@@ -59,7 +59,7 @@ router.put("/", async (req, res) => {
         return;
     }
     try {
-        const evento = await eventCatService.updateEventCategory(id, trimmedNameCat, display_order);
+        const evento = await EventCategoryservices.updateEventCategory(id, trimmedNameCat, display_order);
         if (evento) {
             res.status(200).json({ message: "Categoría de evento actualizada con éxito", id, name: trimmedNameCat, display_order });
         } else {
@@ -73,7 +73,7 @@ router.put("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
     try {
-        const evento = await eventCatService.deleteEventCategory(req.params.id);
+        const evento = await EventCategoryservices.deleteEventCategory(req.params.id);
         if (evento) {
             res.status(200).json({ message: "Categoría de evento eliminada con éxito", evento });
         } else {

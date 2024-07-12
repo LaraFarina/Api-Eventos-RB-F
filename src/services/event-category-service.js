@@ -1,13 +1,12 @@
-import { EventCategoryRepository } from "../../repositories/event_category-repository.js";
-import { Pagination } from "../entities/pagination.js";
-import { verifyLength } from "../utils/functions.js";
+import { EventCategoryRepository } from "../../repositories/event-category-repository.js";
+import { Pagination } from "../helpers/paginacion.js";
 import pg from "pg";
-import { config } from "../../repositories/db.js";
+import { config } from "../repositories/db.js";
 
 const client = new pg.Client(config);
 const eventCategoryRepository = new EventCategoryRepository(client);
 
-export class EventCategoryService {
+export class EventCategoryservices {
     constructor() {
         this.eventCategoryRepository = eventCategoryRepository;
     }

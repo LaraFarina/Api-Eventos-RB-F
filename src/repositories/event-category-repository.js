@@ -1,6 +1,5 @@
 import pg from 'pg';
 import { DBConfig } from "./dbconfig.js";
-import { makeUpdate } from '../src/utils/functions.js';
 
 const { Client } = pg;
 

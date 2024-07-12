@@ -1,13 +1,12 @@
-import { EventLocationRepository } from "../../repositories/event_location-repository.js";
-import { Pagination } from "../entities/pagination.js";
-import { verifyLength } from "../utils/functions.js";
+import { EventLocationRepository } from "../../repositories/event-location-repository.js";
+import { Pagination } from "../helpers/paginacion.js";
 import pg from "pg";
 import { config } from "../../repositories/db.js";
 
 const client = new pg.Client(config);
 client.connect();
 
-export class EventLocationService {
+export class EventLocationservices {
     constructor() {
         this.eventLocationRepository = new EventLocationRepository(client);
     }
@@ -30,7 +29,7 @@ export class EventLocationService {
     }
 
     async putEventLocation(id, id_location, name, full_address, max_capacity, latitude, longitude, id_user) {
-        console.log("ESTOY EN EVENT-LOCATION-SERVICE");
+        console.log("ESTOY EN EVENT-LOCATION-services");
         return await this.eventLocationRepository.putEventLocation(id, id_location, name, full_address, max_capacity, latitude, longitude, id_user);
     }
 

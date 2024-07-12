@@ -1,7 +1,6 @@
 import pg from 'pg';
-import { config } from './db.js'; // Asumiendo que config es el objeto de configuración correcto
-import { DBConfig } from './dbconfig.js';
-import { createToken } from '../src/auth/jwt.js'; // Asumiendo la ruta correcta a createToken
+import { config } from "../repositories/db";
+import { createToken } from '../src/auth/jwt.js'; 
 
 const { Client } = pg;
 const client = new Client(config);

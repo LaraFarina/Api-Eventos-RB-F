@@ -1,17 +1,17 @@
 import { query } from "express";
 import pg from "pg";
 import { config } from "../repositories/db.js"; 
-import { Pagination } from "../utils/paginacion.js";
-import { LocationService } from "../service/location-service.js";
-import { ProvinceRepository } from "../../repositories/provinces-repository.js";
+import { Pagination } from "../helpers/paginacion.js";
+import { Locationservices } from "../services/location-service.js";
+import { ProvinceRepository } from "../../repositories/provincias-repository.js";
 
 const client = new pg.Client(config);
 const pagination = new Pagination();
-const locationService = new LocationService();
+const locationservices = new Locationservices();
 const provinceRepository = new ProvinceRepository();
 client.connect();
 
-export class ProvincesService {
+export class Provincesservices {
   
   async findProvByID(id) {
     let returnEntity = null;
@@ -87,10 +87,10 @@ export class ProvincesService {
     let deletedLocationNames = [];
 
     try {
-      const locations = await locationService.findLocationsByProvince(id);
+      const locations = await locationservices.findLocationsByProvince(id);
       if (locations.length > 0) {
         console.log('Localidades encontradas:', locations);
-        deletedLocationNames = await locationService.deleteLocationsByProvinceId(id);
+        deletedLocationNames = await locationservices.deleteLocationsByProvinceId(id);
         console.log('Localidades eliminadas:', deletedLocationNames);
       }
       const deleteQuery = {
