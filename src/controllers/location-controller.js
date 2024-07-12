@@ -3,7 +3,6 @@ import { Eventservices } from "../services/event-service.js";
 import { Locationservices } from "../services/location-service.js";
 import { authmiddleware } from "../auth/authmiddleware.js";
 import { Pagination } from "../helpers/paginacion.js";
-import { verifyPaginationResources } from "../helpers/functions.js";
 
 const router = express.Router();
 const locationservices = new Locationservices();

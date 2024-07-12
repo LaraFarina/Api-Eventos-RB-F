@@ -1,5 +1,5 @@
 import pg from 'pg';
-import { DBConfig } from "./dbconfig.js";
+import { DBConfig } from "../repositories/db";
 
 const { Client } = pg;
 

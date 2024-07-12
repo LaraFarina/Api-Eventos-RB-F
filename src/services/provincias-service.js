@@ -3,7 +3,7 @@ import pg from "pg";
 import { config } from "../repositories/db.js"; 
 import { Pagination } from "../helpers/paginacion.js";
 import { Locationservices } from "../services/location-service.js";
-import { ProvinceRepository } from "../../repositories/provincias-repository.js";
+import { ProvinceRepository } from "../repositories/provincias-repository.js";
 
 const client = new pg.Client(config);
 const pagination = new Pagination();

@@ -1,5 +1,5 @@
 import express, { Router, json, query } from "express";
-import { Eventservices } from "../services/event-services.js";
+import { Eventservices } from "../services/event-service.js";
 import { authmiddleware } from "../auth/authmiddleware.js";
 import { Pagination } from "../helpers/paginacion.js";
 
